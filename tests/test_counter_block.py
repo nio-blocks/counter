@@ -34,6 +34,9 @@ class LieCounter(Counter):
 @patch(Counter.__module__ + '.Counter._backup')
 class TestCounter(NIOBlockTestCase):
 
+    def get_test_modules(self):
+        return self.ServiceDefaultModules + ['persistence']
+
     def test_count(self, back_patch):
         block = Counter()
         self.configure_block(block, {})
