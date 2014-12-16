@@ -18,6 +18,7 @@ def total_seconds(interval):
 
 
 class FrequencyTracker(object):
+
     def __init__(self, period=1):
         self.signals = []
         self.period = period
@@ -31,11 +32,10 @@ class FrequencyTracker(object):
     def get_frequency(self):
         period = self.period
         signals = self.signals
-        # remove signals that are more than a second
         ctime = _time()
-        del_til = next(i for (i, (ct, c)) in
-                       enumerate(signals) if ctime - ct < period)
-        del signals[:del_til]
+        # only include signals that are inside of the current period
+        signals = [(ct, c) for (ct, c) in signals if ctime - ct < period]
+
         if not signals:
             return 0
         if len(signals) < 2:
