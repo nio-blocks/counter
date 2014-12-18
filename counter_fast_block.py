@@ -1,3 +1,5 @@
+from copy import copy
+from time import time as _time
 from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.command import command
@@ -9,8 +11,6 @@ from nio.metadata.properties.object import ObjectProperty
 from nio.modules.threading import Lock
 from nio.modules.scheduler import Job
 
-from time import time as _time
-
 
 def total_seconds(interval):
     return (interval.days * 24 * 60 * 60 +
@@ -21,20 +21,24 @@ class FrequencyTracker(object):
 
     def __init__(self, period=1):
         self.signals = []
+        self._signals_lock = Lock()
         self.period = period
         self.last_get = _time()
         self._start_time = self.last_get
 
     def record(self, count):
         ctime = _time()
-        self.signals.append((ctime, count))
+        with self._signals_lock:
+            self.signals.append((ctime, count))
 
     def get_frequency(self):
-        period = self.period
-        signals = self.signals
         ctime = _time()
-        # only include signals that are inside of the current period
-        signals = [(ct, c) for (ct, c) in signals if ctime - ct < period]
+        # update signals to only include ones that are inside of the
+        # current period
+        with self._signals_lock:
+            self.signals = [(ct, c) for (ct, c) in self.signals
+                            if ctime - ct < self.period]
+            signals = copy(self.signals)
 
         if not signals:
             return 0
