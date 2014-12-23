@@ -23,35 +23,29 @@ class FrequencyTracker(object):
         self.signals = []
         self._signals_lock = Lock()
         self.period = period
-        self.last_get = _time()
-        self._start_time = self.last_get
+        self._start_time = _time()
 
     def record(self, count):
-        ctime = _time()
         with self._signals_lock:
-            self.signals.append((ctime, count))
+            self.signals.append((_time(), count))
 
     def get_frequency(self):
-        ctime = _time()
+        ctime = None
         # update signals to only include ones that are inside of the
         # current period
         with self._signals_lock:
+            ctime = _time()
             self.signals = [(ct, c) for (ct, c) in self.signals
                             if ctime - ct < self.period]
             signals = copy(self.signals)
 
-        if not signals:
-            return 0
-        if len(signals) < 2:
-            return signals[0][1] / self.period
-        assert signals[-1][0] - signals[0][0] < self.period
-        count = sum(tuple(zip(*signals))[1])
+        total_count = sum([grp[1] for grp in signals])
+        uptime = ctime - self._start_time
 
-        elapsed = ctime - self._start_time
-        if elapsed > self.period:
-            return count / self.period
-        else:
-            return count / elapsed
+        if uptime < self.period:
+            return total_count / uptime
+        
+        return total_count / self.period
 
 
 class Frequency(PropertyHolder):
