@@ -136,12 +136,12 @@ class Counter(Block, GroupBy):
         self._backup()
 
     def process_signals(self, signals):
-        self._signals_to_notify = []
-        self.for_each_group(self.process_group, signals)
-        self.notify_signals(self._signals_to_notify)
+        signals_to_notify = []
+        self.for_each_group(self.process_group, signals, kwargs={"to_notify": signals_to_notify})
+        self.notify_signals(signals_to_notify)
         self._store()
 
-    def process_group(self, signals, key):
+    def process_group(self, signals, key, to_notify):
         """ Executed on each group of incoming signal objects.
         Increments the appropriate count and generates an informative
         output signal.
@@ -155,7 +155,7 @@ class Counter(Block, GroupBy):
             "cumulative_count": self._cumulative_count[key],
             "group": key
         })
-        self._signals_to_notify.append(signal)
+        to_notify.append(signal)
 
     def _load(self):
         self._cumulative_count = \
