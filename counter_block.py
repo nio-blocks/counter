@@ -63,11 +63,9 @@ class Counter(Block, GroupBy):
         self._cumulative_count = {}
         self._reset_job = None
         self._last_reset = None
-        self._signals_to_notify = []
 
     def start(self):
         self._load()
-        self._signals_to_notify = []
         if self.reset_info.resetting:
             self._schedule_reset()
 
@@ -174,14 +172,15 @@ class Counter(Block, GroupBy):
                 timedelta(hours=24),
                 True
             )
-        self._signals_to_notify = []
-        self.for_each_group(self.reset_group)
-        self.notify_signals(self._signals_to_notify)
+        signals_to_notify = []
+        self.for_each_group(self.reset_group,
+                            kwargs={"to_notify": signals_to_notify})
+        self.notify_signals(signals_to_notify)
         self._last_reset = datetime.utcnow()
         self._store()
         self._backup()
 
-    def reset_group(self, key):
+    def reset_group(self, key, to_notify):
         self._logger.debug("Resetting the Counter (%s:%d)" %
                            (key, self._cumulative_count[key]))
         signal = Signal({
@@ -193,7 +192,7 @@ class Counter(Block, GroupBy):
         # set the cumulative count, last reset, and write both to disk
         self._cumulative_count[key] = 0
         # finally, send the signal with the counts at reset time
-        self._signals_to_notify.append(signal)
+        to_notify.append(signal)
 
     def _store(self):
         self.persistence.store('cumulative_count', self._cumulative_count)
