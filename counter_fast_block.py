@@ -62,6 +62,7 @@ class Frequency(PropertyHolder):
                                            title="Averaging Interval")
 
 
+@command("value")
 @command("reset")
 @Discoverable(DiscoverableType.block)
 class CounterFast(Block):
@@ -108,3 +109,7 @@ class CounterFast(Block):
     def reset(self):
         with self._cumulative_count_lock:
             self._cumulative_count = 0
+        return True
+
+    def value(self):
+        return self._cumulative_count
