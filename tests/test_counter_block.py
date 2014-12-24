@@ -4,7 +4,8 @@ from datetime import datetime
 from ..counter_block import Counter
 from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
-from nio.modules.threading import Event
+from nio.modules.threading import Event, spawn
+import time
 
 
 class EventCounter(Counter):
@@ -46,6 +47,31 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.assertEqual(block._cumulative_count['null'], 3)
         self.assert_num_signals_notified(3)
+        block.stop()
+
+    def test_count_simultanious(self, back_patch):
+        block = Counter()
+        self.configure_block(block, {})
+        block.start()
+        signals = list(Signal() for _ in range(100000))
+        process_times = 5
+        spawns = []
+        print("#" * 50 + "Testing spawns")
+        for _ in range(process_times):
+            spawns.append(spawn(block.process_signals, signals))
+        # it should take a while to complete
+        with self.assertRaises(Exception):
+            self.assertEqual(block._cumulative_count['null'],
+                             100000 * process_times)
+            self.assert_num_signals_notified(process_times)
+        # wait for spawns to be done
+        while spawns:
+            time.sleep(0.1)
+            spawns = tuple(s for s in spawns if s.isAlive())
+        # make sure everything works as expected
+        self.assertEqual(block._cumulative_count['null'],
+                         100000 * process_times)
+        self.assert_num_signals_notified(process_times)
         block.stop()
 
     def test_reset(self, back_patch):
