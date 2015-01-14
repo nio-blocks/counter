@@ -56,7 +56,6 @@ class TestCounter(NIOBlockTestCase):
         signals = list(Signal() for _ in range(100000))
         process_times = 5
         spawns = []
-        print("#" * 50 + "Testing spawns")
         for _ in range(process_times):
             spawns.append(spawn(block.process_signals, signals))
         # it should take a while to complete
