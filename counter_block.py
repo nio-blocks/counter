@@ -78,6 +78,12 @@ class Counter(Block, GroupBy):
 
         """
         if self.reset_info.scheme == ResetScheme.INTERVAL:
+            
+            self._logger.debug(
+                "Configuring Counter to reset on an interval of {}".format(
+                    self.reset_info.interval)
+            )
+            
             self._reset_job = Job(
                 self.reset,
                 self.reset_info.interval,
@@ -91,6 +97,14 @@ class Counter(Block, GroupBy):
                 self.reset()
 
         if self.reset_info.scheme == ResetScheme.CRON:
+            
+            self._logger.debug(
+                "Configuring Counter to reset at {}:{} {}".format(
+                    self.reset_info.at.hour,
+                    self.reset_info.at.minute,
+                    'p.m.' if self.reset_info.at.pm else 'a.m.')
+            )
+            
             now = datetime.utcnow()
             next_reset = self._calculate_next(now)
 
@@ -135,7 +149,9 @@ class Counter(Block, GroupBy):
 
     def process_signals(self, signals):
         signals_to_notify = []
-        self.for_each_group(self.process_group, signals, kwargs={"to_notify": signals_to_notify})
+        self.for_each_group(self.process_group, signals,
+                            kwargs={"to_notify": signals_to_notify})
+        
         self.notify_signals(signals_to_notify)
         self._store()
 
@@ -146,6 +162,9 @@ class Counter(Block, GroupBy):
 
         """
         count = len(signals)
+        self._logger.debug(
+            "Ready to process {} signals in group {}".format(count, key)
+        )
         self._cumulative_count[key] = self._cumulative_count.get(key, 0)
         self._cumulative_count[key] += count
         signal = Signal({
