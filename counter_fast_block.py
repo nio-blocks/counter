@@ -78,6 +78,8 @@ class CounterFast(Block):
 
     def process_signals(self, signals):
         count = len(signals)
+        self._logger.debug("Ready to process {} signals".format(count))
+        
         with self._cumulative_count_lock:
             if self.frequency.enabled:
                 self._tracker.record(count)
@@ -90,6 +92,7 @@ class CounterFast(Block):
         self.notify_signals([signal])
 
     def report_frequency(self):
+        self._logger.debug("Reporting signal frequency")
         signal = Signal({"count_frequency": self._tracker.get_frequency()})
         self.notify_signals([signal])
 
