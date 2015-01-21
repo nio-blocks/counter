@@ -18,7 +18,13 @@ def total_seconds(interval):
 
 
 class FrequencyTracker(object):
+    """ Helper class for tracking the frequency of incoming signals
 
+    Args:
+        period (int): The period (in seconds) over which to calculate
+            signal frequencies.
+
+    """
     def __init__(self, period=1):
         self.signals = []
         self._signals_lock = Lock()
@@ -26,10 +32,19 @@ class FrequencyTracker(object):
         self._start_time = _time()
 
     def record(self, count):
+        """ Record a signal count.
+
+        """
         with self._signals_lock:
             self.signals.append((_time(), count))
 
     def get_frequency(self):
+        """ Calculate and return the signal frequency.
+
+        Aggregate the number of signals over the configured period
+        and find the frequency.
+
+        """
         ctime = None
         # update signals to only include ones that are inside of the
         # current period
@@ -49,6 +64,16 @@ class FrequencyTracker(object):
 
 
 class Frequency(PropertyHolder):
+    """ An object to encapsulate frequency reporting configuration.
+
+    Properties:
+        enabled (bool): Is frequency reporting enabled?
+        report_interval (timedelta): The interval at which to 
+            report the frequency.
+        averaging_interval (timedelta): The period over which
+            frequencies are calculated.
+
+    """
     enabled = BoolProperty(default=False, title="Report Frequency?")
     report_interval = TimeDeltaProperty(default={"seconds": 1},
                                         title="Report Interval")
