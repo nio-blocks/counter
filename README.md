@@ -35,3 +35,39 @@ Output
 -   **count**: Number of signals that were sent into the signal.
 -   **cumulative_count**: Number of signals since reset.
 -   **group**: The group that the counts relate to as defined by **group_by**.
+
+CounterFast
+===========
+
+A faster counter that ignores groups and provides functionality to return signal frequency over a configured period. There is no interaction with Persistence.
+
+The cumulative count can be reset by the *reset* command.
+
+Properties
+----------
+
+- **frequency**:
+   * **enabled** (bool): Is frequency reporting enabled?
+   * **report_interval** (timedelta): The interval at which to report frequencies.
+   * **averaging_interval** (timedelta): The interval over which to calculate frequencies.
+
+Dependencies
+------------
+
+None
+
+Commands
+--------
+
+- **reset**: Cumulative count is then set to 0. Returns True.
+- **value**: Returns the cumulative count.
+
+Input
+-------
+Any list of signals.
+
+Output
+---------
+
+-   **count**: Number of signals processed.
+-   **cumulative_count**: Number of signals since last reset.
