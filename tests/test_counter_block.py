@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
-from datetime import datetime
 from ..counter_block import Counter
 from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
@@ -109,13 +108,15 @@ class TestCounter(NIOBlockTestCase):
         block._calculate_next = MagicMock(
             return_value=now+timedelta(seconds=1))
 
+        # Reset one minute in the future
+        reset_at = now + timedelta(minutes=1)
         self.configure_block(block, {
             "reset_info": {
                 "resetting": True,
                 "scheme": "CRON",
                 "at": {
-                    "hour": now.hour,
-                    "minute": now.minute + 1
+                    "hour": reset_at.hour,
+                    "minute": reset_at.minute
                 }
             },
         })
@@ -131,14 +132,16 @@ class TestCounter(NIOBlockTestCase):
         block = LieCounter(e)
         block.reset = MagicMock()
 
+        # Reset one minute in the past
+        reset_at = now - timedelta(minutes=1)
         self.configure_block(block, {
             "log_level": "DEBUG",
             "reset_info": {
                 "resetting": True,
                 "scheme": "CRON",
                 "at": {
-                    "hour": now.hour,
-                    "minute": now.minute - 1
+                    "hour": reset_at.hour,
+                    "minute": reset_at.minute
                 }
             },
         })
