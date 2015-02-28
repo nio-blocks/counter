@@ -32,9 +32,17 @@ class TestCounter(NIOBlockTestCase):
         })
         block.start()
         block.process_signals([Signal({'test_count': 1})])
-        block.process_signals([Signal({'test_count': 2})])
+        block.process_signals([
+            Signal({'test_count': 2}), Signal({'test_count': 3})])
+        block.process_signals([
+            Signal({'test_count': 3}), Signal({'bad_test_count': 2})])
         block.process_signals([Signal({'bad_test_count': 3})])
-        self.assertEqual(block._cumulative_count['null'], 3)
+
+        # We only add up the ones that have the valid count attribute
+        # 1 + 2 + 3 + 3
+        self.assertEqual(block._cumulative_count['null'], 9)
+
+        # One of the process signals only had zeroes, shouldn't be notified
         self.assert_num_signals_notified(3)
         block.stop()
 
@@ -55,4 +63,21 @@ class TestCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['A'], 6)
         self.assertEqual(block._cumulative_count['B'], 50)
         self.assert_num_signals_notified(5)
+        block.stop()
+
+    def test_no_zeroes(self, back_patch):
+        """ Make sure the block doesn't notify zero counts """
+        block = NumericCounter()
+        self.configure_block(block, {
+            'count_expr': '{{$test_count}}'
+        })
+        block.start()
+        block.process_signals([Signal({'test_count': 1})])
+        block.process_signals([Signal({'test_count': 2})])
+        block.process_signals([Signal({'test_count': 0})])
+        block.process_signals([Signal({'test_count': 3})])
+        block.process_signals([Signal({'test_count': 0})])
+        self.assertEqual(block._cumulative_count['null'], 6)
+        # Even though 5 signals sent, only 3 sent out (no zeroes!)
+        self.assert_num_signals_notified(3)
         block.stop()
