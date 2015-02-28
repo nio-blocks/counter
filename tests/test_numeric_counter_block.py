@@ -11,6 +11,7 @@ class TestCounter(NIOBlockTestCase):
         return self.ServiceDefaultModules + ['persistence']
 
     def test_count(self, back_patch):
+        """ Make sure we use the passed counts and not signal lengths """
         block = NumericCounter()
         self.configure_block(block, {
             'count_expr': '{{$test_count}}'
@@ -24,6 +25,7 @@ class TestCounter(NIOBlockTestCase):
         block.stop()
 
     def test_count_bad_val(self, back_patch):
+        """ Make sure bad values are counted as 0 """
         block = NumericCounter()
         self.configure_block(block, {
             'count_expr': '{{$test_count}}'
@@ -37,6 +39,7 @@ class TestCounter(NIOBlockTestCase):
         block.stop()
 
     def test_count_groups(self, back_patch):
+        """ Make sure we get the group by functionality in this block too """
         block = NumericCounter()
         self.configure_block(block, {
             'count_expr': '{{$test_count}}',
