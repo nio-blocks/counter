@@ -1,3 +1,13 @@
+Counter Blocks
+==============
+
+This repository comprises several different types of counters.
+ * [Counter](#counter)
+ * [CounterFast](#counterfast)
+ * [NumericCounter](#numericcounter)
+
+
+
 Counter
 =======
 
@@ -71,3 +81,38 @@ Output
 
 -   **count**: Number of signals processed.
 -   **cumulative_count**: Number of signals since last reset.
+
+NumericCounter
+=======
+
+The same as the [Counter Block](#counter) but it expects count values to be passed to the block rather than lists of signals to be counted.
+
+This is allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if count data is already available.
+
+Properties
+--------------
+
+-   **count_expr**: (expression) The expression to be applied to each signal to extract the count
+-   **reset_info**: If **resetting** is true, *cumulative_count* will reset at a specified interval or time. When **scheme** is set to *INTERVAL* then *cumulative_count* will reset every **interval**. When **scheme** is set to *CRON* then *cumulative_count* will reset at every **at** (in UTC time).
+-   **group_by**: Expression proprety. The value by which signals are grouped. Output signals will have *group* set to this value.
+
+
+Dependencies
+----------------
+[GroupBy Block Supplement](https://github.com/nio-blocks/block_supplements/tree/master/group_by)
+
+Commands
+----------------
+
+-   **reset**: Notifes a signal with *count* equal to 0 and *cumulative_count* equal to the cumulative count. Cumulative count is then set to 0.
+
+Input
+-------
+Any list of signals.
+
+Output
+---------
+
+-   **count**: Number of signals that were sent into the signal.
+-   **cumulative_count**: Number of signals since reset.
+-   **group**: The group that the counts relate to as defined by **group_by**.
