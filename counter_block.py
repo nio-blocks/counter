@@ -78,12 +78,12 @@ class Counter(Block, GroupBy):
 
         """
         if self.reset_info.scheme == ResetScheme.INTERVAL:
-            
+
             self._logger.debug(
                 "Configuring Counter to reset on an interval of {}".format(
                     self.reset_info.interval)
             )
-            
+
             self._reset_job = Job(
                 self.reset,
                 self.reset_info.interval,
@@ -97,14 +97,14 @@ class Counter(Block, GroupBy):
                 self.reset()
 
         if self.reset_info.scheme == ResetScheme.CRON:
-            
+
             self._logger.debug(
                 "Configuring Counter to reset at {}:{} {}".format(
                     self.reset_info.at.hour,
                     self.reset_info.at.minute,
                     'p.m.' if self.reset_info.at.pm else 'a.m.')
             )
-            
+
             now = datetime.utcnow()
             next_reset = self._calculate_next(now)
 
@@ -151,7 +151,7 @@ class Counter(Block, GroupBy):
         signals_to_notify = []
         self.for_each_group(self.process_group, signals,
                             kwargs={"to_notify": signals_to_notify})
-        
+
         self.notify_signals(signals_to_notify)
         self._store()
 
@@ -161,7 +161,14 @@ class Counter(Block, GroupBy):
         output signal.
 
         """
-        count = len(signals)
+        count = self._get_count_from_signals(signals)
+
+        # We should ignore any 0 counts - these should be reserved for
+        # count reset events - that guarantee is made by the counter block
+        if count == 0:
+            self._logger.debug("Ignoring a 0 count - not notifying")
+            return
+
         self._logger.debug(
             "Ready to process {} signals in group {}".format(count, key)
         )
@@ -173,6 +180,10 @@ class Counter(Block, GroupBy):
             "group": key
         })
         to_notify.append(signal)
+
+    def _get_count_from_signals(self, signals):
+        """ Get the count we want given a list of signals """
+        return len(signals)
 
     def _load(self):
         self._cumulative_count = \
