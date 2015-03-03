@@ -183,7 +183,11 @@ class Counter(Block, GroupBy):
         to_notify.append(signal)
 
     def _get_count_from_signals(self, signals):
-        """ Get the count we want given a list of signals """
+        """ Get the count we want given a list of signals.
+
+        This block can be overridden in sub blocks. If the block returns
+        None, then no count signal will be notified.
+        """
         return len(signals)
 
     def _load(self):
