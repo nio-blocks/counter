@@ -1,5 +1,5 @@
 from nio.common.discovery import Discoverable, DiscoverableType
-from nio.metadata.properties import ExpressionProperty
+from nio.metadata.properties import ExpressionProperty, BoolProperty
 from .counter_block import Counter
 
 
@@ -8,6 +8,7 @@ class NumericCounter(Counter):
 
     count_expr = ExpressionProperty(
         title='Count Expression', default='{{$count}}')
+    send_zeroes = BoolProperty(title='Send Zero Counts', default=True)
 
     def _get_count_from_signals(self, signals):
         """ Get counts from signals.
@@ -27,5 +28,10 @@ class NumericCounter(Counter):
                     "Unable to determine count for {}".format(sig))
                 sig_count = 0
             count += sig_count
+
+        if not self.send_zeroes and count == 0:
+            # If we don't want to send zeroes, return None if it's zero
+            # so that the count doesn't get notified
+            return None
 
         return count

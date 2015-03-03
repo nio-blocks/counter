@@ -163,10 +163,11 @@ class Counter(Block, GroupBy):
         """
         count = self._get_count_from_signals(signals)
 
-        # We should ignore any 0 counts - these should be reserved for
-        # count reset events - that guarantee is made by the counter block
-        if count == 0:
-            self._logger.debug("Ignoring a 0 count - not notifying")
+        # If count is None, the block must not want to send any signals
+        # This is in place so that the NumericCounter can choose whether or
+        # not to send 'zero' counts
+        if count is None:
+            self._logger.debug("Ignoring count - not notifying")
             return
 
         self._logger.debug(
