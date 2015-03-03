@@ -84,7 +84,7 @@ class TestCounter(NIOBlockTestCase):
         block.stop()
 
     def test_with_zeroes(self, back_patch):
-        """ Make sure the block doesn't notify zero counts """
+        """ Make sure the block notifies zeroes when configured to """
         block = NumericCounter()
         self.configure_block(block, {
             'count_expr': '{{$test_count}}',
