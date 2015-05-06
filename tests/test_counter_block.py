@@ -169,7 +169,7 @@ class TestCounter(NIOBlockTestCase):
             Signal({'foo': 'baz'}),
             Signal({'qux': 'ly'})
         ])
-        self.assertEqual(block._cumulative_count['null'], 1)
+        self.assertEqual(block._cumulative_count[''], 1)
         self.assertEqual(block._cumulative_count['bar'], 1)
         self.assertEqual(block._cumulative_count['baz'], 1)
         e.wait(2)
