@@ -31,13 +31,16 @@ class LieCounter(Counter):
         self._schedule_reset()
 
 
-@patch(Counter.__module__ + '.Counter._backup')
 class TestCounter(NIOBlockTestCase):
 
     def get_test_modules(self):
-        return self.ServiceDefaultModules + ['persistence']
+        return super().get_test_modules() + ['persistence']
 
-    def test_count(self, back_patch):
+    def get_module_config_persistence(self):
+        """ Make sure we use in-memory persistence """
+        return {'persistence': 'default'}
+
+    def test_count(self):
         block = Counter()
         self.configure_block(block, {})
         block.start()
@@ -48,7 +51,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(3)
         block.stop()
 
-    def test_count_simultanious(self, back_patch):
+    def test_count_simultanious(self):
         block = Counter()
         self.configure_block(block, {})
         block.start()
@@ -72,7 +75,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(process_times)
         block.stop()
 
-    def test_reset(self, back_patch):
+    def test_reset(self):
         block = Counter()
         self.configure_block(block, {})
         block.start()
@@ -83,7 +86,7 @@ class TestCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['null'], 1)
         block.stop()
 
-    def test_interval_reset(self, back_patch):
+    def test_interval_reset(self):
         e = Event()
         block = EventCounter(e)
         self.configure_block(block, {
@@ -101,7 +104,7 @@ class TestCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['null'], 0)
         block.stop()
 
-    def test_cron_sched(self, back_patch):
+    def test_cron_sched(self):
         now = datetime.utcnow()
         e = Event()
         block = EventCounter(e)
@@ -126,7 +129,7 @@ class TestCounter(NIOBlockTestCase):
         e.wait(1.25)
         self.assertEqual(block._cumulative_count['null'], 0)
 
-    def test_cron_missed_reset(self, back_patch):
+    def test_cron_missed_reset(self):
         now = datetime.utcnow()
         e = Event()
         block = LieCounter(e)
@@ -150,7 +153,7 @@ class TestCounter(NIOBlockTestCase):
         e.wait(0.5)
         block.reset.assert_called_once()
 
-    def test_groups(self, back_patch):
+    def test_groups(self):
         e = Event()
         block = EventCounter(e)
         self.configure_block(block, {
@@ -176,3 +179,33 @@ class TestCounter(NIOBlockTestCase):
         for k in block._cumulative_count:
             self.assertEqual(block._cumulative_count[k], 0)
         block.stop()
+
+    def test_persistence(self):
+        """ Test that the block uses persistence """
+        blk = Counter()
+        _time = datetime.utcnow()
+        with patch('nio.common.block.base.Persistence') as persist:
+            persist.return_value.load.side_effect = lambda key: {
+                "cumulative_count": {"key": 42},
+                "last_reset": _time,
+                "groups": ["key"]
+            }.get(key)
+            persist.return_value.has_key.side_effect = \
+                lambda key: key in ["cumulative_count", "last_reset", "groups"]
+            self.configure_block(blk, {})
+        # Confirm that the persisted attrs were loaded from persistence
+        self.assertEqual(blk._cumulative_count, {"key": 42})
+        self.assertEqual(blk._last_reset, _time)
+        self.assertEqual(blk._groups, ["key"])
+        # Check that attrs are persisted at the end
+        blk.start()
+        blk.stop()
+        call_args_list = [i[0] for i in blk.persistence.store.call_args_list]
+        self.assertTrue(len(call_args_list), 3)
+        self.assertTrue(
+            ("cumulative_count", blk._cumulative_count) in call_args_list)
+        self.assertTrue(
+            ("last_reset", blk._last_reset) in call_args_list)
+        self.assertTrue(
+            ("groups", blk._groups) in call_args_list)
+        blk.persistence.save.assert_called_once_with()
