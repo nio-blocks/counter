@@ -4,10 +4,8 @@ from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.command import command
 from nio.common.signal.base import Signal
-from nio.metadata.properties.bool import BoolProperty
-from nio.metadata.properties.timedelta import TimeDeltaProperty
-from nio.metadata.properties.holder import PropertyHolder
-from nio.metadata.properties.object import ObjectProperty
+from nio.metadata.properties import BoolProperty, TimeDeltaProperty, \
+    PropertyHolder, ObjectProperty, VersionProperty
 from nio.modules.threading import Lock
 from nio.modules.scheduler import Job
 
@@ -25,6 +23,8 @@ class FrequencyTracker(object):
             signal frequencies.
 
     """
+    version = VersionProperty('0.1.0')
+
     def __init__(self, period=1):
         self.signals = []
         self._signals_lock = Lock()
@@ -59,7 +59,7 @@ class FrequencyTracker(object):
 
         if uptime < self.period:
             return total_count / uptime
-        
+
         return total_count / self.period
 
 
@@ -68,7 +68,7 @@ class Frequency(PropertyHolder):
 
     Properties:
         enabled (bool): Is frequency reporting enabled?
-        report_interval (timedelta): The interval at which to 
+        report_interval (timedelta): The interval at which to
             report the frequency.
         averaging_interval (timedelta): The period over which
             frequencies are calculated.
@@ -104,7 +104,7 @@ class CounterFast(Block):
     def process_signals(self, signals):
         count = len(signals)
         self._logger.debug("Ready to process {} signals".format(count))
-        
+
         with self._cumulative_count_lock:
             if self.frequency.enabled:
                 self._tracker.record(count)

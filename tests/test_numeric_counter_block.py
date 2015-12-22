@@ -4,13 +4,12 @@ from nio.util.support.block_test_case import NIOBlockTestCase
 from nio.common.signal.base import Signal
 
 
-@patch(NumericCounter.__module__ + '.NumericCounter._backup')
 class TestCounter(NIOBlockTestCase):
 
     def get_test_modules(self):
         return self.ServiceDefaultModules + ['persistence']
 
-    def test_count(self, back_patch):
+    def test_count(self):
         """ Make sure we use the passed counts and not signal lengths """
         block = NumericCounter()
         self.configure_block(block, {
@@ -24,7 +23,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(3)
         block.stop()
 
-    def test_count_bad_val(self, back_patch):
+    def test_count_bad_val(self):
         """ Make sure bad values are counted as 0 """
         block = NumericCounter()
         self.configure_block(block, {
@@ -46,7 +45,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(4)
         block.stop()
 
-    def test_count_groups(self, back_patch):
+    def test_count_groups(self):
         """ Make sure we get the group by functionality in this block too """
         block = NumericCounter()
         self.configure_block(block, {
@@ -65,7 +64,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(5)
         block.stop()
 
-    def test_no_zeroes(self, back_patch):
+    def test_no_zeroes(self):
         """ Make sure the block doesn't notify zero counts """
         block = NumericCounter()
         self.configure_block(block, {
@@ -83,7 +82,7 @@ class TestCounter(NIOBlockTestCase):
         self.assert_num_signals_notified(3)
         block.stop()
 
-    def test_with_zeroes(self, back_patch):
+    def test_with_zeroes(self):
         """ Make sure the block notifies zeroes when configured to """
         block = NumericCounter()
         self.configure_block(block, {

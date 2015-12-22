@@ -4,14 +4,11 @@ from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.signal.base import Signal
 from nio.common.command import command
-from nio.metadata.properties.select import SelectProperty
-from nio.metadata.properties.timedelta import TimeDeltaProperty
-from nio.metadata.properties.object import ObjectProperty
-from nio.metadata.properties.holder import PropertyHolder
-from nio.metadata.properties.int import IntProperty
-from nio.metadata.properties.bool import BoolProperty
+from nio.metadata.properties import SelectProperty, TimeDeltaProperty, \
+    ObjectProperty, PropertyHolder, IntProperty, BoolProperty, VersionProperty
 from nio.modules.scheduler import Job
 from .block_supplements.group_by.group_by_block import GroupBy
+from .block_supplements.persistence.persistence import Persistence
 
 
 class ResetScheme(Enum):
@@ -35,7 +32,7 @@ class ResetInfo(PropertyHolder):
 
 @command("reset")
 @Discoverable(DiscoverableType.block)
-class Counter(Block, GroupBy):
+class Counter(Persistence, GroupBy, Block):
 
     """ A block that counts the number of signals
     that are processed by it.
@@ -55,17 +52,16 @@ class Counter(Block, GroupBy):
                 be reset. Corresponds to INTERVAL mode.
 
     """
+    version = VersionProperty('0.1.0')
     reset_info = ObjectProperty(ResetInfo, title='Reset Info')
 
     def __init__(self):
         super().__init__()
-        GroupBy.__init__(self)
         self._cumulative_count = {}
         self._reset_job = None
         self._last_reset = None
 
     def start(self):
-        self._load()
         if self.reset_info.resetting:
             self._schedule_reset()
 
@@ -143,17 +139,12 @@ class Counter(Block, GroupBy):
 
         return date
 
-    def stop(self):
-        self._store()
-        self._backup()
-
     def process_signals(self, signals):
         signals_to_notify = []
         self.for_each_group(self.process_group, signals,
                             kwargs={"to_notify": signals_to_notify})
 
         self.notify_signals(signals_to_notify)
-        self._store()
 
     def process_group(self, signals, key, to_notify):
         """ Executed on each group of incoming signal objects.
@@ -190,12 +181,6 @@ class Counter(Block, GroupBy):
         """
         return len(signals)
 
-    def _load(self):
-        self._cumulative_count = \
-            self.persistence.load('cumulative_count') or {}
-        self._last_reset = self.persistence.load('last_reset')
-        self._groups = self.persistence.load('groups') or []
-
     def reset(self, cron=False):
 
         # In the 'CRON' scheme, the first scheduling will be at an odd
@@ -212,8 +197,6 @@ class Counter(Block, GroupBy):
                             kwargs={"to_notify": signals_to_notify})
         self.notify_signals(signals_to_notify)
         self._last_reset = datetime.utcnow()
-        self._store()
-        self._backup()
 
     def reset_group(self, key, to_notify):
         self._logger.debug("Resetting the Counter (%s:%d)" %
@@ -229,10 +212,9 @@ class Counter(Block, GroupBy):
         # finally, send the signal with the counts at reset time
         to_notify.append(signal)
 
-    def _store(self):
-        self.persistence.store('cumulative_count', self._cumulative_count)
-        self.persistence.store('last_reset', self._last_reset)
-        self.persistence.store('groups', self._groups)
-
-    def _backup(self):
-        self.persistence.save()
+    def persisted_values(self):
+        return {
+            "cumulative_count": "_cumulative_count",
+            "last_reset": "_last_reset",
+            "groups": "_groups"
+        }
