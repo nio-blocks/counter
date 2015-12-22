@@ -36,7 +36,7 @@ class ResetInfo(PropertyHolder):
 
 @command("reset")
 @Discoverable(DiscoverableType.block)
-class Counter(Persistence, Block, GroupBy):
+class Counter(Persistence, GroupBy, Block):
 
     """ A block that counts the number of signals
     that are processed by it.
@@ -60,7 +60,6 @@ class Counter(Persistence, Block, GroupBy):
 
     def __init__(self):
         super().__init__()
-        GroupBy.__init__(self)
         self._cumulative_count = {}
         self._reset_job = None
         self._last_reset = None
