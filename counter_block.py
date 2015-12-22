@@ -4,12 +4,8 @@ from nio.common.block.base import Block
 from nio.common.discovery import Discoverable, DiscoverableType
 from nio.common.signal.base import Signal
 from nio.common.command import command
-from nio.metadata.properties.select import SelectProperty
-from nio.metadata.properties.timedelta import TimeDeltaProperty
-from nio.metadata.properties.object import ObjectProperty
-from nio.metadata.properties.holder import PropertyHolder
-from nio.metadata.properties.int import IntProperty
-from nio.metadata.properties.bool import BoolProperty
+from nio.metadata.properties import SelectProperty, TimeDeltaProperty, \
+    ObjectProperty, PropertyHolder, IntProperty, BoolProperty, VersionProperty
 from nio.modules.scheduler import Job
 from .block_supplements.group_by.group_by_block import GroupBy
 from .block_supplements.persistence.persistence import Persistence
@@ -56,6 +52,7 @@ class Counter(Persistence, GroupBy, Block):
                 be reset. Corresponds to INTERVAL mode.
 
     """
+    version = VersionProperty('0.1.0')
     reset_info = ObjectProperty(ResetInfo, title='Reset Info')
 
     def __init__(self):

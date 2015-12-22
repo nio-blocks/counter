@@ -1,11 +1,13 @@
 from nio.common.discovery import Discoverable, DiscoverableType
-from nio.metadata.properties import ExpressionProperty, BoolProperty
+from nio.metadata.properties import ExpressionProperty, BoolProperty, \
+    VersionProperty
 from .counter_block import Counter
 
 
 @Discoverable(DiscoverableType.block)
 class NumericCounter(Counter):
 
+    version = VersionProperty('0.1.0')
     count_expr = ExpressionProperty(
         title='Count Expression', default='{{$count}}')
     send_zeroes = BoolProperty(title='Send Zero Counts', default=True)
