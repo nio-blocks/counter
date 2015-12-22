@@ -149,7 +149,6 @@ class Counter(Persistence, Block, GroupBy):
                             kwargs={"to_notify": signals_to_notify})
 
         self.notify_signals(signals_to_notify)
-        self._save()
 
     def process_group(self, signals, key, to_notify):
         """ Executed on each group of incoming signal objects.
@@ -202,7 +201,6 @@ class Counter(Persistence, Block, GroupBy):
                             kwargs={"to_notify": signals_to_notify})
         self.notify_signals(signals_to_notify)
         self._last_reset = datetime.utcnow()
-        self._save()
 
     def reset_group(self, key, to_notify):
         self._logger.debug("Resetting the Counter (%s:%d)" %
