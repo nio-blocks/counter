@@ -1,12 +1,12 @@
 from copy import copy
 from time import time as _time
-from nio.common.block.base import Block
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.common.command import command
-from nio.common.signal.base import Signal
-from nio.metadata.properties import BoolProperty, TimeDeltaProperty, \
+from nio.block.base import Block
+from nio.util.discovery import discoverable
+from nio.command import command
+from nio.signal.base import Signal
+from nio.properties import BoolProperty, TimeDeltaProperty, \
     PropertyHolder, ObjectProperty, VersionProperty
-from nio.modules.threading import Lock
+from threading import Lock
 from nio.modules.scheduler import Job
 
 
@@ -83,30 +83,31 @@ class Frequency(PropertyHolder):
 
 @command("value")
 @command("reset")
-@Discoverable(DiscoverableType.block)
+@discoverable
 class CounterFast(Block):
-    frequency = ObjectProperty(Frequency, title="Report Freqency")
+    frequency = ObjectProperty(
+        Frequency, title="Report Freqency", default=Frequency())
 
     def configure(self, context):
         super().configure(context)
         self._cumulative_count = 0
         self._cumulative_count_lock = Lock()
 
-        if self.frequency.enabled:
+        if self.frequency().enabled():
             self._tracker = FrequencyTracker(
-                total_seconds(self.frequency.averaging_interval))
+                total_seconds(self.frequency().averaging_interval()))
 
     def start(self):
-        if self.frequency.enabled:
+        if self.frequency().enabled():
             self._job = Job(self.report_frequency,
-                            self.frequency.report_interval, True)
+                            self.frequency().report_interval(), True)
 
     def process_signals(self, signals):
         count = len(signals)
-        self._logger.debug("Ready to process {} signals".format(count))
+        self.logger.debug("Ready to process {} signals".format(count))
 
         with self._cumulative_count_lock:
-            if self.frequency.enabled:
+            if self.frequency().enabled():
                 self._tracker.record(count)
             self._cumulative_count += count
             cumulative_count = self._cumulative_count
@@ -117,7 +118,7 @@ class CounterFast(Block):
         self.notify_signals([signal])
 
     def report_frequency(self):
-        self._logger.debug("Reporting signal frequency")
+        self.logger.debug("Reporting signal frequency")
         signal = Signal({"count_frequency": self._tracker.get_frequency()})
         self.notify_signals([signal])
 

@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from nio.common.block.base import Block
-from nio.common.discovery import Discoverable, DiscoverableType
-from nio.common.signal.base import Signal
-from nio.common.command import command
-from nio.metadata.properties import SelectProperty, TimeDeltaProperty, \
+from nio.block.base import Block
+from nio.util.discovery import discoverable
+from nio.signal.base import Signal
+from nio.command import command
+from nio.properties import SelectProperty, TimeDeltaProperty, \
     ObjectProperty, PropertyHolder, IntProperty, BoolProperty, VersionProperty
 from nio.modules.scheduler import Job
-from .block_supplements.group_by.group_by_block import GroupBy
-from .block_supplements.persistence.persistence import Persistence
+from nio.block.mixins.group_by.group_by import GroupBy
+from nio.block.mixins.persistence.persistence import Persistence
 
 
 class ResetScheme(Enum):
@@ -26,12 +26,12 @@ class ResetInfo(PropertyHolder):
     resetting = BoolProperty(title='Resetting', default=False)
     scheme = SelectProperty(ResetScheme, default=ResetScheme.INTERVAL,
                             title='Reset Scheme')
-    at = ObjectProperty(Time, title="Time (UTC)")
-    interval = TimeDeltaProperty(title='Reset Interval')
+    at = ObjectProperty(Time, title="Time (UTC)", default=Time())
+    interval = TimeDeltaProperty(title='Reset Interval', default=timedelta(0))
 
 
 @command("reset")
-@Discoverable(DiscoverableType.block)
+@discoverable
 class Counter(Persistence, GroupBy, Block):
 
     """ A block that counts the number of signals
@@ -42,7 +42,7 @@ class Counter(Persistence, GroupBy, Block):
     as the total since the block was started.
 
     Properties:
-        group_by (ExpressionProperty): The value by which signals are grouped.
+        group_by (Property): The value by which signals are grouped.
         reset_info (ResetInfo):
             resetting (bool): Does the counter reset?
             scheme (ResetScheme): The reset mode (CRON or INTERVAL)
@@ -52,8 +52,9 @@ class Counter(Persistence, GroupBy, Block):
                 be reset. Corresponds to INTERVAL mode.
 
     """
+    reset_info = ObjectProperty(ResetInfo, title='Reset Info',
+                                default=ResetInfo())
     version = VersionProperty('0.1.0')
-    reset_info = ObjectProperty(ResetInfo, title='Reset Info')
 
     def __init__(self):
         super().__init__()
@@ -62,8 +63,12 @@ class Counter(Persistence, GroupBy, Block):
         self._last_reset = None
 
     def start(self):
-        if self.reset_info.resetting:
+        if self.reset_info().resetting():
             self._schedule_reset()
+
+    def persisted_values(self):
+        """Persist values with block mixin"""
+        return ["_cumulative_count", "_last_reset", "_groups"]
 
     def _schedule_reset(self):
         """ Determines the appropriate time for the next counter reset based
@@ -73,32 +78,32 @@ class Counter(Persistence, GroupBy, Block):
         will be executed upon startup.
 
         """
-        if self.reset_info.scheme == ResetScheme.INTERVAL:
+        if self.reset_info().scheme() == ResetScheme.INTERVAL:
 
-            self._logger.debug(
+            self.logger.debug(
                 "Configuring Counter to reset on an interval of {}".format(
-                    self.reset_info.interval)
+                    self.reset_info().interval())
             )
 
             self._reset_job = Job(
                 self.reset,
-                self.reset_info.interval,
+                self.reset_info().interval(),
                 True
             )
 
             # if it's been longer than the configured interval since our last
             # reset, get on with it
             if self._last_reset is not None and \
-               datetime.utcnow() - self._last_reset > self.reset_info.interval:
+               datetime.utcnow() - self._last_reset > self.reset_info().interval():
                 self.reset()
 
-        if self.reset_info.scheme == ResetScheme.CRON:
+        if self.reset_info().scheme() == ResetScheme.CRON:
 
-            self._logger.debug(
+            self.logger.debug(
                 "Configuring Counter to reset at {}:{} {}".format(
-                    self.reset_info.at.hour,
-                    self.reset_info.at.minute,
-                    'p.m.' if self.reset_info.at.pm else 'a.m.')
+                    self.reset_info().at().hour(),
+                    self.reset_info().at().minute(),
+                    'p.m.' if self.reset_info().at().pm() else 'a.m.')
             )
 
             now = datetime.utcnow()
@@ -109,7 +114,7 @@ class Counter(Persistence, GroupBy, Block):
             if next_reset < datetime.utcnow():
                 if self._last_reset is not None and \
                    self._last_reset < next_reset:
-                    self._logger.debug(
+                    self.logger.debug(
                         "Missed a scheduled counter reset. Performing now"
                     )
                     self.reset()
@@ -130,9 +135,9 @@ class Counter(Persistence, GroupBy, Block):
 
         """
         year, month, day = (now.year, now.month, now.day)
-        minute = self.reset_info.at.minute
-        hour = self.reset_info.at.hour
-        if self.reset_info.at.pm:
+        minute = self.reset_info().at().minute()
+        hour = self.reset_info().at().hour()
+        if self.reset_info().at().pm():
             hour += 12
 
         date = datetime(year, month, day, hour, minute)
@@ -140,13 +145,9 @@ class Counter(Persistence, GroupBy, Block):
         return date
 
     def process_signals(self, signals):
-        signals_to_notify = []
-        self.for_each_group(self.process_group, signals,
-                            kwargs={"to_notify": signals_to_notify})
+        self.notify_signals(self.for_each_group(self.process_group, signals))
 
-        self.notify_signals(signals_to_notify)
-
-    def process_group(self, signals, key, to_notify):
+    def process_group(self, signals, key):
         """ Executed on each group of incoming signal objects.
         Increments the appropriate count and generates an informative
         output signal.
@@ -158,10 +159,10 @@ class Counter(Persistence, GroupBy, Block):
         # This is in place so that the NumericCounter can choose whether or
         # not to send 'zero' counts
         if count is None:
-            self._logger.debug("Ignoring count - not notifying")
+            self.logger.debug("Ignoring count - not notifying")
             return
 
-        self._logger.debug(
+        self.logger.debug(
             "Ready to process {} signals in group {}".format(count, key)
         )
         self._cumulative_count[key] = self._cumulative_count.get(key, 0)
@@ -171,7 +172,7 @@ class Counter(Persistence, GroupBy, Block):
             "cumulative_count": self._cumulative_count[key],
             "group": key
         })
-        to_notify.append(signal)
+        return [signal]
 
     def _get_count_from_signals(self, signals):
         """ Get the count we want given a list of signals.
@@ -192,14 +193,11 @@ class Counter(Persistence, GroupBy, Block):
                 timedelta(hours=24),
                 True
             )
-        signals_to_notify = []
-        self.for_each_group(self.reset_group,
-                            kwargs={"to_notify": signals_to_notify})
-        self.notify_signals(signals_to_notify)
+        self.notify_signals(self.for_each_group(self.reset_group))
         self._last_reset = datetime.utcnow()
 
-    def reset_group(self, key, to_notify):
-        self._logger.debug("Resetting the Counter (%s:%d)" %
+    def reset_group(self, key):
+        self.logger.debug("Resetting the Counter (%s:%d)" %
                            (key, self._cumulative_count[key]))
         signal = Signal({
             "count": 0,
@@ -210,11 +208,4 @@ class Counter(Persistence, GroupBy, Block):
         # set the cumulative count, last reset, and write both to disk
         self._cumulative_count[key] = 0
         # finally, send the signal with the counts at reset time
-        to_notify.append(signal)
-
-    def persisted_values(self):
-        return {
-            "cumulative_count": "_cumulative_count",
-            "last_reset": "_last_reset",
-            "groups": "_groups"
-        }
+        return [signal]

@@ -1,13 +1,10 @@
 from unittest.mock import patch
 from ..numeric_counter_block import NumericCounter
-from nio.util.support.block_test_case import NIOBlockTestCase
-from nio.common.signal.base import Signal
+from nio.testing.block_test_case import NIOBlockTestCase
+from nio.signal.base import Signal
 
 
 class TestCounter(NIOBlockTestCase):
-
-    def get_test_modules(self):
-        return self.ServiceDefaultModules + ['persistence']
 
     def test_count(self):
         """ Make sure we use the passed counts and not signal lengths """
@@ -19,7 +16,7 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal({'test_count': 1})])
         block.process_signals([Signal({'test_count': 2})])
         block.process_signals([Signal({'test_count': 3})])
-        self.assertEqual(block._cumulative_count['null'], 6)
+        self.assertEqual(block._cumulative_count[None], 6)
         self.assert_num_signals_notified(3)
         block.stop()
 
@@ -39,7 +36,7 @@ class TestCounter(NIOBlockTestCase):
 
         # We only add up the ones that have the valid count attribute
         # 1 + 2 + 3 + 3
-        self.assertEqual(block._cumulative_count['null'], 9)
+        self.assertEqual(block._cumulative_count[None], 9)
 
         # Send zero/bad signals by default
         self.assert_num_signals_notified(4)
@@ -77,7 +74,7 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal({'test_count': 0})])
         block.process_signals([Signal({'test_count': 3})])
         block.process_signals([Signal({'test_count': 0})])
-        self.assertEqual(block._cumulative_count['null'], 6)
+        self.assertEqual(block._cumulative_count[None], 6)
         # Even though 5 signals sent, only 3 sent out (no zeroes!)
         self.assert_num_signals_notified(3)
         block.stop()
@@ -95,7 +92,7 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal({'test_count': 0})])
         block.process_signals([Signal({'test_count': 3})])
         block.process_signals([Signal({'test_count': 0})])
-        self.assertEqual(block._cumulative_count['null'], 6)
+        self.assertEqual(block._cumulative_count[None], 6)
         # All 5 should have been sent now
         self.assert_num_signals_notified(5)
         block.stop()
