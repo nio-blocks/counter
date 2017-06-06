@@ -1,0 +1,89 @@
+{
+  "nio/Counter": {
+    "Output": "-   **count**: Number of signals that were sent into the signal.\n-   **cumulative_count**: Number of signals since reset.\n-   **group**: The group that the counts relate to as defined by `group_by`.",
+    "Description": "Counts the number of signals that pass through the block. It outputs the `count` for each list of signals that is processed by the block and a `cumulative_count` which is the total number of signals that have been processed by the block since the last rest.\nSignals can optionally be grouped using the `group_by` property. This is an evaluable expression that will group the counts and specify the group in the `group` attribute in the output signal.\nPersistence is used to maintain the cumulative count between stopping and starting the block.\nThe cumulative count can be reset by using the *reset* command or by using one of the `reset_info` options. The `reset_info` properties allow for configuration of the block to reset the cumulative count based on a recurring `INTERVAL` or a specific time by using the `CRON` setting. On reset, a signal is notified. It contains the *cumulative_count* right before the reset and the *count* is zero.",
+    "Category": "SignalModifier",
+    "Input": "Any list of signals.",
+    "Properties": {
+      "group_by": {
+        "description": "The value by which signals are grouped. Output signals will have `group` set to this value."
+      },
+      "reset_info": {
+        "in": "UTC",
+        "description": "If resetting is `True`, cumulative_count will reset at a specified interval or time. When scheme is set to `INTERVAL` then cumulative_count will reset every interval. When scheme is set to `CRON` then cumulative_count will reset at every at ."
+      }
+    },
+    "Version": "1.0.0",
+    "Dependencies": [
+      "[GroupBy Block Supplement](https://github.com/nio-blocks/block_supplements/tree/master/group_by)"
+    ],
+    "Commands": {
+      "reset": {
+        "description": "Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0."
+      }
+    }
+  },
+  "nio/NumericCounter": {
+    "Output": "-   `count`: Number of signals that were sent into the signal.\n-   `cumulative_count`: Number of signals since reset.\n-   `group`: The group that the counts relate to as defined by `group_by`.",
+    "Description": "The same as the [Counter Block](#counter) but it expects count values to be passed to the block rather than lists of signals to be counted.\nThis allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if count data is already available.",
+    "Category": "SignalModifier",
+    "Input": "Any list of signals.",
+    "Properties": {
+      "group_by": {
+        "description": "The value by which signals are grouped. Output signals will have `group` set to this value."
+      },
+      "reset_info": {
+        "in": "UTC",
+        "description": "If resetting is `True`, `cumulative_count` will reset at a specified interval or time. When scheme is set to `INTERVAL` then `cumulative_count` will reset every interval. When scheme is set to `CRON` then `cumulative_count` will reset at every at ."
+      },
+      "count_expr": {
+        "type": "expression",
+        "description": "The expression to be applied to each signal to extract the count"
+      }
+    },
+    "Version": "1.0.0",
+    "Dependencies": [
+      "[GroupBy Block Supplement](https://github.com/nio-blocks/block_supplements/tree/master/group_by)"
+    ],
+    "Commands": {
+      "reset": {
+        "description": "Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0."
+      }
+    }
+  },
+  "nio/CounterFast": {
+    "Output": "-   `count`: Number of signals processed.\n-   `cumulative_count`: Number of signals since last reset.",
+    "Description": "A faster counter that ignores groups and provides functionality to return signal frequency over a configured period. There is no interaction with persistence.\nThe cumulative count can be reset by the *reset* command.",
+    "Category": "SignalModifier",
+    "Input": "Any list of signals.",
+    "Properties": {
+      "report_interval": {
+        "type": "timedelta",
+        "description": "The interval at which to report frequencies."
+      },
+      "frequency": {
+        "description": ""
+      },
+      "averaging_interval": {
+        "type": "timedelta",
+        "description": "The interval over which to calculate frequencies."
+      },
+      "enabled": {
+        "type": "bool",
+        "description": "Is frequency reporting enabled?"
+      }
+    },
+    "Version": "1.0.0",
+    "Dependencies": [
+      "None"
+    ],
+    "Commands": {
+      "value": {
+        "description": "Returns the cumulative count."
+      },
+      "reset": {
+        "description": "Cumulative count is then set to 0. Returns `True`."
+      }
+    }
+  }
+}

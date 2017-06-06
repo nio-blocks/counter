@@ -1,0 +1,17 @@
+{
+  "nio/Counter": {
+    "Reference": "github.com/nio-blocks/counter.git@v1.0.0",
+    "Language": "Python",
+    "Version": "1.0.0"
+  },
+  "nio/NumericCounter": {
+    "Reference": "github.com/nio-blocks/counter.git@v1.0.0",
+    "Language": "Python",
+    "Version": "1.0.0"
+  },
+  "nio/CounterFast": {
+    "Reference": "github.com/nio-blocks/counter.git@v1.0.0",
+    "Language": "Python",
+    "Version": "1.0.0"
+  }
+}

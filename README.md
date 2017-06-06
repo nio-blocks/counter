@@ -6,7 +6,7 @@ This repository comprises several different types of counters.
  * [CounterFast](#counterfast)
  * [NumericCounter](#numericcounter)
 
-
+***
 
 Counter
 =======
@@ -46,6 +46,8 @@ Output
 -   **cumulative_count**: Number of signals since reset.
 -   **group**: The group that the counts relate to as defined by `group_by`.
 
+***
+
 CounterFast
 ===========
 
@@ -57,9 +59,9 @@ Properties
 ----------
 
 - **frequency**:
-   * **enabled** (bool): Is frequency reporting enabled?
-   * **report_interval** (timedelta): The interval at which to report frequencies.
-   * **averaging_interval** (timedelta): The interval over which to calculate frequencies.
+   * **enabled** (type:bool): Is frequency reporting enabled?
+   * **report_interval** (type:timedelta): The interval at which to report frequencies.
+   * **averaging_interval** (type:timedelta): The interval over which to calculate frequencies.
 
 Dependencies
 ------------
@@ -82,6 +84,8 @@ Output
 -   `count`: Number of signals processed.
 -   `cumulative_count`: Number of signals since last reset.
 
+***
+
 NumericCounter
 =======
 
@@ -92,7 +96,7 @@ This allows for use of the cumulative count and reset functionality of the count
 Properties
 --------------
 
--   **count_expr**: (expression) The expression to be applied to each signal to extract the count
+-   **count_expr**: (type:expression) The expression to be applied to each signal to extract the count
 -   **reset_info**: If **resetting** is `True`, `cumulative_count` will reset at a specified interval or time. When **scheme** is set to `INTERVAL` then `cumulative_count` will reset every **interval**. When **scheme** is set to `CRON` then `cumulative_count` will reset at every **at** (in UTC time).
 -   **group_by**: The value by which signals are grouped. Output signals will have `group` set to this value.
 
