@@ -7,6 +7,7 @@ from nio.command import command
 from nio.properties import SelectProperty, TimeDeltaProperty, \
     ObjectProperty, PropertyHolder, IntProperty, BoolProperty, VersionProperty
 from nio.modules.scheduler import Job
+from nio.block.mixins.enrich.enrich_signals import EnrichSignals
 from nio.block.mixins.group_by.group_by import GroupBy
 from nio.block.mixins.persistence.persistence import Persistence
 
@@ -32,7 +33,7 @@ class ResetInfo(PropertyHolder):
 
 @command("reset")
 @discoverable
-class Counter(Persistence, GroupBy, Block):
+class Counter(EnrichSignals, Persistence, GroupBy, Block):
 
     """ A block that counts the number of signals
     that are processed by it.
@@ -167,12 +168,12 @@ class Counter(Persistence, GroupBy, Block):
         )
         self._cumulative_count[key] = self._cumulative_count.get(key, 0)
         self._cumulative_count[key] += count
-        signal = Signal({
+        enriched_signal = self.get_output_signal({
             "count": count,
             "cumulative_count": self._cumulative_count[key],
             "group": key
-        })
-        return [signal]
+        }, signals[0])
+        return [enriched_signal]
 
     def _get_count_from_signals(self, signals):
         """ Get the count we want given a list of signals.
