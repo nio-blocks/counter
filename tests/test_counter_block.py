@@ -145,7 +145,7 @@ class TestCounter(NIOBlockTestCase):
         block.start(now - timedelta(minutes=10))
         block.process_signals([Signal()])
         e.wait(0.5)
-        block.reset.assert_called_once()
+        self.assertEqual(block.reset.call_count, 1)
 
     def test_groups(self):
         e = Event()
@@ -183,7 +183,6 @@ class TestCounter(NIOBlockTestCase):
         blk._last_reset = _time
         blk._groups = ["key"]
         self.configure_block(blk, {})
-        blk._persistence.store = MagicMock()
         blk._persistence.save = MagicMock()
         # Confirm that the persisted attrs were loaded from persistence
         self.assertEqual(blk._cumulative_count, {"key": 42})
@@ -192,12 +191,12 @@ class TestCounter(NIOBlockTestCase):
         # Check that attrs are persisted at the end
         blk.start()
         blk.stop()
-        call_args_list = [i[0] for i in blk._persistence.store.call_args_list]
+        call_args_list = [i[0] for i in blk._persistence.save.call_args_list]
         self.assertTrue(len(call_args_list), 3)
         self.assertTrue(
-            ("_cumulative_count", blk._cumulative_count) in call_args_list)
+            "_cumulative_count" in call_args_list[0][0].keys())
         self.assertTrue(
-            ("_last_reset", blk._last_reset) in call_args_list)
+            "_last_reset" in call_args_list[0][0].keys())
         self.assertTrue(
-            ("_groups", blk._groups) in call_args_list)
-        blk._persistence.save.assert_called_once_with()
+            "_groups" in call_args_list[0][0].keys())
+        self.assertEqual(blk._persistence.save.call_count, 1)
