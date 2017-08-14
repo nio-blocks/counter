@@ -1,10 +1,9 @@
-from nio.util.discovery import discoverable
 from nio.properties import IntProperty, BoolProperty, \
     VersionProperty
+
 from .counter_block import Counter
 
 
-@discoverable
 class NumericCounter(Counter):
 
     version = VersionProperty('0.1.0')

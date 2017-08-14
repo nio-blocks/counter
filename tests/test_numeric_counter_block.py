@@ -1,7 +1,7 @@
-from unittest.mock import patch
-from ..numeric_counter_block import NumericCounter
 from nio.testing.block_test_case import NIOBlockTestCase
 from nio.signal.base import Signal
+
+from ..numeric_counter_block import NumericCounter
 
 
 class TestCounter(NIOBlockTestCase):

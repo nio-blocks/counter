@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from enum import Enum
+
 from nio.block.base import Block
-from nio.util.discovery import discoverable
 from nio.signal.base import Signal
 from nio.command import command
 from nio.properties import SelectProperty, TimeDeltaProperty, \
@@ -32,7 +32,6 @@ class ResetInfo(PropertyHolder):
 
 
 @command("reset")
-@discoverable
 class Counter(EnrichSignals, Persistence, GroupBy, Block):
 
     """ A block that counts the number of signals
@@ -94,8 +93,9 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
 
             # if it's been longer than the configured interval since our last
             # reset, get on with it
-            if self._last_reset is not None and \
-               datetime.utcnow() - self._last_reset > self.reset_info().interval():
+            if self._last_reset is not None \
+                    and datetime.utcnow() - self._last_reset \
+                    > self.reset_info().interval():
                 self.reset()
 
         if self.reset_info().scheme() == ResetScheme.CRON:
@@ -198,8 +198,10 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
         self._last_reset = datetime.utcnow()
 
     def reset_group(self, key):
-        self.logger.debug("Resetting the Counter (%s:%d)" %
-                           (key, self._cumulative_count[key]))
+        self.logger.debug(
+            "Resetting the Counter ({}:{})".format(
+                key, self._cumulative_count[key])
+        )
         signal = Signal({
             "count": 0,
             "cumulative_count": self._cumulative_count[key],
