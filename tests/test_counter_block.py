@@ -1,13 +1,17 @@
+from unittest.mock import MagicMock
 import time
 from datetime import datetime, timedelta
 from threading import Event
+
 from nio.util.threading.spawn import spawn
-from unittest.mock import MagicMock, patch
+from nio.util.discovery import not_discoverable
 from nio.testing.block_test_case import NIOBlockTestCase
 from nio.signal.base import Signal
+
 from ..counter_block import Counter
 
 
+@not_discoverable
 class EventCounter(Counter):
 
     def __init__(self, event):
@@ -19,6 +23,7 @@ class EventCounter(Counter):
         self._event.set()
 
 
+@not_discoverable
 class LieCounter(Counter):
 
     def __init__(self, event):

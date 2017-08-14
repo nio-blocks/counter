@@ -1,6 +1,8 @@
 from time import sleep
+
 from nio.signal.base import Signal
 from nio.testing.block_test_case import NIOBlockTestCase
+
 from ..counter_fast_block import CounterFast, FrequencyTracker
 
 

@@ -1,12 +1,12 @@
 from copy import copy
 from time import time as _time
+from threading import Lock
+
 from nio.block.base import Block
-from nio.util.discovery import discoverable
 from nio.command import command
 from nio.signal.base import Signal
 from nio.properties import BoolProperty, TimeDeltaProperty, \
     PropertyHolder, ObjectProperty, VersionProperty
-from threading import Lock
 from nio.modules.scheduler import Job
 
 
@@ -83,8 +83,9 @@ class Frequency(PropertyHolder):
 
 @command("value")
 @command("reset")
-@discoverable
 class CounterFast(Block):
+
+    version = VersionProperty("0.1.0")
     frequency = ObjectProperty(
         Frequency, title="Report Freqency", default=Frequency())
 
