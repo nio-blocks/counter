@@ -100,7 +100,6 @@ Commands
 
 Dependencies
 ------------
-[GroupBy Block Supplement](https://github.com/nio-blocks/block_supplements/tree/master/group_by)
 
 Output Signal Attributes
 ------------------------
