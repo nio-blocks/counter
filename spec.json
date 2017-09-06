@@ -2,6 +2,9 @@
   "nio/Counter": {
     "version": "0.1.0",
     "description": "Counts the number of signals that pass through the block. It outputs the `count` for each list of signals that is processed by the block and a `cumulative_count` which is the total number of signals that have been processed by the block since the last rest.",
+    "categories": [
+      "Signal Inspection"
+    ],
     "properties": {
       "backup_interval": {
         "title": "Backup Interval",
@@ -76,6 +79,9 @@
   "nio/CounterFast": {
     "version": "0.1.0",
     "description": "A faster counter that ignores groups and provides functionality to return signal frequency over a configured period. There is no interaction with persistence.",
+    "categories": [
+      "Signal Inspection"
+    ],
     "properties": {
       "frequency": {
         "title": "Report Freqency",
@@ -120,6 +126,9 @@
   "nio/NumericCounter": {
     "version": "0.1.0",
     "description": "The same as the Counter Block but it expects count values to be passed to the block rather than lists of signals to be counted.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if count data is already available.",
+    "categories": [
+      "Signal Inspection"
+    ],
     "properties": {
       "backup_interval": {
         "title": "Backup Interval",
