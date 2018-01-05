@@ -1,7 +1,7 @@
 {
   "nio/Counter": {
     "version": "0.1.0",
-    "description": "Counts the number of signals that pass through the block. It outputs the `count` for each list of signals that is processed by the block and a `cumulative_count` which is the total number of signals that have been processed by the block since the last rest.",
+    "description": "The Counter block counts the number of signals that pass through the block. It outputs the `count`, which is the length of each incoming list of signals processed by the block, and a `cumulative_count` which is the total number of signals (a sum of all the previous `count`s) that have been processed by the block since the last reset.",
     "categories": [
       "Signal Inspection"
     ],
@@ -9,7 +9,7 @@
       "backup_interval": {
         "title": "Backup Interval",
         "type": "TimeDeltaType",
-        "description": "How often to periodically save (backup) the persisted signal and interval.",
+        "description": "An interval of time that specifies how often persisted data is saved.",
         "default": {
           "seconds": 3600
         }
@@ -17,7 +17,7 @@
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, the original incoming signal will be included in the output signal.",
+        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -26,19 +26,19 @@
       "group_by": {
         "title": "Group By",
         "type": "Type",
-        "description": "The value by which signals are grouped. Output signals will have `group` set to this value.",
+        "description": "The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.",
         "default": null
       },
       "load_from_persistence": {
         "title": "Load from Persistence?",
         "type": "BoolType",
-        "description": "If true, the state of the block will be saved when stopped and reloaded upon restart.",
+        "description": "If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.",
         "default": true
       },
       "reset_info": {
         "title": "Reset Info",
         "type": "ObjectType",
-        "description": "If **resetting** is `True`, *cumulative_count* will reset at a specified interval or time. When **scheme** is set to `INTERVAL` then *cumulative_count* will reset every **interval**. When **scheme** is set to `CRON` then *cumulative_count* will reset at every **at** (in UTC time).",
+        "description": "If **resetting** is `True`, the *cumulative_count* output will reset after the specified interval or time. When **scheme** is set to `INTERVAL` then *cumulative_count* will reset every **interval**. When **scheme** is set to `CRON` then *cumulative_count* will reset at every **at** (in UTC time).",
         "default": {
           "resetting": false,
           "scheme": "INTERVAL",
@@ -67,7 +67,7 @@
     },
     "commands": {
       "groups": {
-        "description": "Display the current signal groupings.",
+        "description": "Returns a list of the block’s current signal groupings.",
         "params": {}
       },
       "reset": {
@@ -78,7 +78,7 @@
   },
   "nio/CounterFast": {
     "version": "0.1.0",
-    "description": "A faster counter that ignores groups and provides functionality to return signal frequency over a configured period. There is no interaction with persistence.",
+    "description": "The CounterFast block is a simplified version of the [Counter block](https://blocks.n.io/Counter).  It outputs the same *count* and *cumulative_count*, but does not allow for resetting, persistence, grouping, or signal enrichment.",
     "categories": [
       "Signal Inspection"
     ],
@@ -86,7 +86,7 @@
       "frequency": {
         "title": "Report Freqency",
         "type": "ObjectType",
-        "description": "Configurables for how often to output a signal.",
+        "description": "If **report frequency?** is `True` (checked), a seperate signal will be output every **report interval** containing the *count_frequency*.  The *count_frequency* is the number of signals received per **averaging interval**.",
         "default": {
           "averaging_interval": {
             "microseconds": 0,
@@ -109,7 +109,7 @@
     },
     "outputs": {
       "default": {
-        "description": "Signal including the count, and cumulative count."
+        "description": "Signal including the *count*, and *cumulative_count*. Optional signal with the *count_frequency*"
       }
     },
     "commands": {
@@ -125,7 +125,7 @@
   },
   "nio/NumericCounter": {
     "version": "0.1.0",
-    "description": "The same as the Counter Block but it expects count values to be passed to the block rather than lists of signals to be counted.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if count data is already available.",
+    "description": "The NumericCounter block is the same as the [Counter block](https://blocks.n.io/Counter) but rather than summing the number of signals is sums the value of the incoming signal specified by the **count** property.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if the count data is already available.",
     "categories": [
       "Signal Inspection"
     ],
@@ -133,7 +133,7 @@
       "backup_interval": {
         "title": "Backup Interval",
         "type": "TimeDeltaType",
-        "description": "How often to periodically save (backup) the persisted signal and interval.",
+        "description": "An interval of time that specifies how often persisted data is saved.",
         "default": {
           "seconds": 3600
         }
@@ -141,13 +141,13 @@
       "count_expr": {
         "title": "Count ",
         "type": "IntType",
-        "description": "The expression to be applied to each signal to extract the count.",
+        "description": "The incoming signal attribute value to sum and output as the *cumulative_count*.",
         "default": "{{$count}}"
       },
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
-        "description": "If true, the original incoming signal will be included in the output signal.",
+        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
         "default": {
           "exclude_existing": true,
           "enrich_field": ""
@@ -156,13 +156,13 @@
       "group_by": {
         "title": "Group By",
         "type": "Type",
-        "description": "The value by which signals are grouped. Output signals will have `group` set to this value.",
+        "description": "The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.",
         "default": null
       },
       "load_from_persistence": {
         "title": "Load from Persistence?",
         "type": "BoolType",
-        "description": "If true, the state of the block will be saved when stopped and reloaded upon restart.",
+        "description": "If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.",
         "default": true
       },
       "reset_info": {
@@ -187,7 +187,7 @@
       "send_zeroes": {
         "title": "Send Zero Counts",
         "type": "BoolType",
-        "description": "If true, will not send an output signal when the count is zero",
+        "description": "If `False` (unchecked), an output signal will not be sent when the *count* = 0",
         "default": true
       }
     },
@@ -203,7 +203,7 @@
     },
     "commands": {
       "groups": {
-        "description": "Display the current signal groupings.",
+        "description": "Returns a list of the block’s current signal groupings.",
         "params": {}
       },
       "reset": {
