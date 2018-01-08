@@ -54,7 +54,7 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
     """
     reset_info = ObjectProperty(ResetInfo, title='Reset Info',
                                 default=ResetInfo())
-    version = VersionProperty('0.1.0')
+    version = VersionProperty("0.1.1")
 
     def __init__(self):
         super().__init__()

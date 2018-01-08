@@ -1,6 +1,6 @@
 {
   "nio/Counter": {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "The Counter block counts the number of signals that pass through the block. It outputs the `count`, which is the length of each incoming list of signals processed by the block, and a `cumulative_count` which is the total number of signals (a sum of all the previous `count`s) that have been processed by the block since the last reset.",
     "categories": [
       "Signal Inspection"
