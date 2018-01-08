@@ -124,7 +124,7 @@
     }
   },
   "nio/NumericCounter": {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "The NumericCounter block is the same as the [Counter block](https://blocks.n.io/Counter) but rather than summing the number of signals is sums the value of the incoming signal specified by the **count** property.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if the count data is already available.",
     "categories": [
       "Signal Inspection"
