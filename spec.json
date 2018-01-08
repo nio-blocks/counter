@@ -77,7 +77,7 @@
     }
   },
   "nio/CounterFast": {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "The CounterFast block is a simplified version of the [Counter block](https://blocks.n.io/Counter).  It outputs the same *count* and *cumulative_count*, but does not allow for resetting, persistence, grouping, or signal enrichment.",
     "categories": [
       "Signal Inspection"

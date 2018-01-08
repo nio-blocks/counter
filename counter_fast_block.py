@@ -23,7 +23,7 @@ class FrequencyTracker(object):
             signal frequencies.
 
     """
-    version = VersionProperty('0.1.0')
+    version = VersionProperty("0.1.1")
 
     def __init__(self, period=1):
         self.signals = []
@@ -85,7 +85,7 @@ class Frequency(PropertyHolder):
 @command("reset")
 class CounterFast(Block):
 
-    version = VersionProperty("0.1.0")
+    version = VersionProperty("0.1.1")
     frequency = ObjectProperty(
         Frequency, title="Report Freqency", default=Frequency())
 
