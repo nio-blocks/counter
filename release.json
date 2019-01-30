@@ -2,16 +2,21 @@
   "nio/Counter": {
     "language": "Python",
     "url": "git://github.com/nio-blocks/counter.git",
-    "version": "0.1.1"
+    "from_python": "counter_block.Counter"
   },
   "nio/CounterFast": {
     "language": "Python",
     "url": "git://github.com/nio-blocks/counter.git",
-    "version": "0.1.1"
+    "from_python": "counter_fast_block.CounterFast"
   },
   "nio/NumericCounter": {
     "language": "Python",
     "url": "git://github.com/nio-blocks/counter.git",
-    "version": "0.1.1"
+    "from_python": "numeric_counter_block.NumericCounter"
+  },
+  "nio/ResettableCounter": {
+    "language": "Python",
+    "url": "git://github.com/nio-blocks/counter.git",
+    "from_python": "reset_counter_block.ResettableCounter"
   }
 }

@@ -1,215 +1,34 @@
 {
   "nio/Counter": {
-    "version": "0.1.1",
-    "description": "The Counter block counts the number of signals that pass through the block. It outputs the `count`, which is the length of each incoming list of signals processed by the block, and a `cumulative_count` which is the total number of signals (a sum of all the previous `count`s) that have been processed by the block since the last reset.",
+    "description": "The Counter block counts the number of signals that pass through the block. It also maintains a cumulative count that can be reset on a schedule.",
     "categories": [
       "Signal Inspection"
     ],
-    "properties": {
-      "backup_interval": {
-        "title": "Backup Interval",
-        "type": "TimeDeltaType",
-        "description": "An interval of time that specifies how often persisted data is saved.",
-        "default": {
-          "seconds": 3600
-        }
-      },
-      "enrich": {
-        "title": "Signal Enrichment",
-        "type": "ObjectType",
-        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
-        "default": {
-          "exclude_existing": true,
-          "enrich_field": ""
-        }
-      },
-      "group_by": {
-        "title": "Group By",
-        "type": "Type",
-        "description": "The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.",
-        "default": null
-      },
-      "load_from_persistence": {
-        "title": "Load from Persistence?",
-        "type": "BoolType",
-        "description": "If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.",
-        "default": true
-      },
-      "reset_info": {
-        "title": "Reset Info",
-        "type": "ObjectType",
-        "description": "If **resetting** is `True`, the *cumulative_count* output will reset after the specified interval or time. When **scheme** is set to `INTERVAL` then *cumulative_count* will reset every **interval**. When **scheme** is set to `CRON` then *cumulative_count* will reset at every **at** (in UTC time).",
-        "default": {
-          "resetting": false,
-          "scheme": "INTERVAL",
-          "interval": {
-            "microseconds": 0,
-            "days": 0,
-            "seconds": 0
-          },
-          "at": {
-            "minute": 0,
-            "hour": 0,
-            "pm": false
-          }
-        }
-      }
-    },
-    "inputs": {
-      "default": {
-        "description": "Any list of signals."
-      }
-    },
-    "outputs": {
-      "default": {
-        "description": "Signal including the count, cumulative count, and group."
-      }
-    },
-    "commands": {
-      "groups": {
-        "description": "Returns a list of the block’s current signal groupings.",
-        "params": {}
-      },
-      "reset": {
-        "description": "Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.",
-        "params": {}
-      }
-    }
+    "from_readme": "docs/counter.md",
+    "from_python": "counter_block.Counter"
   },
   "nio/CounterFast": {
-    "version": "0.1.1",
-    "description": "The CounterFast block is a simplified version of the [Counter block](https://blocks.n.io/Counter).  It outputs the same *count* and *cumulative_count*, but does not allow for resetting, persistence, grouping, or signal enrichment.",
+    "description": "The CounterFast block is a simplified version of the Counter block that outputs the same *count* and *cumulative_count*, but does not allow for resetting, persistence, grouping, or signal enrichment.",
     "categories": [
       "Signal Inspection"
     ],
-    "properties": {
-      "frequency": {
-        "title": "Report Freqency",
-        "type": "ObjectType",
-        "description": "If **report frequency?** is `True` (checked), a seperate signal will be output every **report interval** containing the *count_frequency*.  The *count_frequency* is the number of signals received per **averaging interval**.",
-        "default": {
-          "averaging_interval": {
-            "microseconds": 0,
-            "days": 0,
-            "seconds": 5
-          },
-          "enabled": false,
-          "report_interval": {
-            "microseconds": 0,
-            "days": 0,
-            "seconds": 1
-          }
-        }
-      }
-    },
-    "inputs": {
-      "default": {
-        "description": "Any list of signals."
-      }
-    },
-    "outputs": {
-      "default": {
-        "description": "Signal including the *count*, and *cumulative_count*. Optional signal with the *count_frequency*"
-      }
-    },
-    "commands": {
-      "reset": {
-        "description": "Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.",
-        "params": {}
-      },
-      "value": {
-        "description": "Returns the cumulative count.",
-        "params": {}
-      }
-    }
+    "from_readme": "docs/counter_fast.md",
+    "from_python": "counter_fast_block.CounterFast"
   },
   "nio/NumericCounter": {
-    "version": "0.1.1",
-    "description": "The NumericCounter block is the same as the [Counter block](https://blocks.n.io/Counter) but rather than summing the number of signals is sums the value of the incoming signal specified by the **count** property.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if the count data is already available.",
+    "description": "The NumericCounter block is the same as the Counter block but rather than summing the number of signals it sums the value of the incoming signal specified by the **count** property.  This allows for use of the cumulative count and reset functionality of the counter block, but does not require large numbers of signals to be passed if the count data is already available.",
     "categories": [
       "Signal Inspection"
     ],
-    "properties": {
-      "backup_interval": {
-        "title": "Backup Interval",
-        "type": "TimeDeltaType",
-        "description": "An interval of time that specifies how often persisted data is saved.",
-        "default": {
-          "seconds": 3600
-        }
-      },
-      "count_expr": {
-        "title": "Count ",
-        "type": "IntType",
-        "description": "The incoming signal attribute value to sum and output as the *cumulative_count*.",
-        "default": "{{$count}}"
-      },
-      "enrich": {
-        "title": "Signal Enrichment",
-        "type": "ObjectType",
-        "description": "If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.",
-        "default": {
-          "exclude_existing": true,
-          "enrich_field": ""
-        }
-      },
-      "group_by": {
-        "title": "Group By",
-        "type": "Type",
-        "description": "The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.",
-        "default": null
-      },
-      "load_from_persistence": {
-        "title": "Load from Persistence?",
-        "type": "BoolType",
-        "description": "If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.",
-        "default": true
-      },
-      "reset_info": {
-        "title": "Reset Info",
-        "type": "ObjectType",
-        "description": "If **resetting** is `True`, *cumulative_count* will reset at a specified interval or time. When **scheme** is set to `INTERVAL` then *cumulative_count* will reset every **interval**. When **scheme** is set to `CRON` then *cumulative_count* will reset at every **at** (in UTC time).",
-        "default": {
-          "resetting": false,
-          "scheme": "INTERVAL",
-          "interval": {
-            "microseconds": 0,
-            "days": 0,
-            "seconds": 0
-          },
-          "at": {
-            "minute": 0,
-            "hour": 0,
-            "pm": false
-          }
-        }
-      },
-      "send_zeroes": {
-        "title": "Send Zero Counts",
-        "type": "BoolType",
-        "description": "If `False` (unchecked), an output signal will not be sent when the *count* = 0",
-        "default": true
-      }
-    },
-    "inputs": {
-      "default": {
-        "description": "Any list of signals."
-      }
-    },
-    "outputs": {
-      "default": {
-        "description": "Signal including the count, cumulative count, and group."
-      }
-    },
-    "commands": {
-      "groups": {
-        "description": "Returns a list of the block’s current signal groupings.",
-        "params": {}
-      },
-      "reset": {
-        "description": "Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.",
-        "params": {}
-      }
-    }
+    "from_readme": "docs/numeric_counter.md",
+    "from_python": "numeric_counter_block.NumericCounter"
+  },
+  "nio/ResettableCounter": {
+    "description": "The ResettableCounter adds an additional input to the Counter block that allows incoming signals to reset a group's cumulative count. All other behavior is the same as the Counter block.",
+    "categories": [
+      "Signal Inspection"
+    ],
+    "from_readme": "docs/resettable_counter.md",
+    "from_python": "reset_counter_block.ResettableCounter"
   }
 }

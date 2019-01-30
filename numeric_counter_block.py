@@ -7,8 +7,7 @@ from .counter_block import Counter
 class NumericCounter(Counter):
 
     version = VersionProperty("0.1.1")
-    count_expr = IntProperty(
-        title='Count ', default='{{$count}}')
+    count_expr = IntProperty(title='Count', default='{{$count}}')
     send_zeroes = BoolProperty(title='Send Zero Counts', default=True)
 
     def _get_count_from_signals(self, signals):
