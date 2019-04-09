@@ -22,6 +22,6 @@
   "nio/TallyCounter": {
     "language": "Python",
     "url": "git://github.com/nio-blocks/counter.git",
-    "from_python": "tally_counter_block.tallyCounter"
+    "from_python": "tally_counter_block.TallyCounter"
   }
 }
