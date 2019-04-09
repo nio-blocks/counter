@@ -30,5 +30,13 @@
     ],
     "from_readme": "docs/resettable_counter.md",
     "from_python": "reset_counter_block.ResettableCounter"
+  },
+  "nio/TallyCounter": {
+    "description": "The TallyCounter is useful for tasks such as score keeping. Incoming signals are enriched with the cumulative count for every group processed since the last reset.",
+    "categories": [
+      "Signal Inspection"
+    ],
+    "from_readme": "docs/tally_counter.md",
+    "from_python": "tally_counter_block.TallyCounter"
   }
 }
