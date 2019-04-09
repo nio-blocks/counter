@@ -83,6 +83,8 @@ class TestCounter(NIOBlockTestCase):
         block.reset()
         block.process_signals([Signal()])
         self.assertEqual(block._cumulative_count[None], 1)
+        block.reset()
+        self.assertFalse(block._cumulative_count)
         block.stop()
 
     def test_interval_reset(self):
@@ -100,7 +102,7 @@ class TestCounter(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal(), Signal()])
         e.wait(2)
-        self.assertEqual(block._cumulative_count[None], 0)
+        self.assertFalse(block._cumulative_count)
         block.stop()
 
     def test_cron_sched(self):
@@ -126,7 +128,7 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.assertEqual(block._cumulative_count[None], 1)
         e.wait(1.25)
-        self.assertEqual(block._cumulative_count[None], 0)
+        self.assertFalse(block._cumulative_count)
 
     def test_cron_missed_reset(self):
         now = datetime.utcnow()
@@ -175,8 +177,7 @@ class TestCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['bar'], 1)
         self.assertEqual(block._cumulative_count['baz'], 1)
         e.wait(2)
-        for k in block._cumulative_count:
-            self.assertEqual(block._cumulative_count[k], 0)
+        self.assertFalse(block._cumulative_count)
         block.stop()
 
     def test_persistence(self):

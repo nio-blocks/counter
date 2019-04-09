@@ -19,7 +19,7 @@ Inputs
 
 Outputs
 -------
-- **default**: Signal including the count, cumulative count, and group.
+- **default**: Signal including the `count`, `group`, and `tally`.
 
 Output Signal Attributes
 ------------------------
@@ -30,4 +30,4 @@ Output Signal Attributes
 Commands
 --------
 - **groups**: Returns a list of the block’s current signal groupings.
-- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.
+- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. The group(s) reset are removed from `tally`

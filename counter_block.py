@@ -208,7 +208,8 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
             "group": key
         })
 
-        # set the cumulative count, last reset, and write both to disk
-        self._cumulative_count[key] = 0
+        # remove the group from cumulative count and update _last_reset
+        del self._cumulative_count[key]
+        self._last_reset = datetime.utcnow()
         # finally, send the signal with the counts at reset time
         return [signal]
