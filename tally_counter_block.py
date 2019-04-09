@@ -9,7 +9,8 @@ class TallyCounter(Counter):
     that are processed by it.
 
     Enriches incoming signals with `tally`, including a key for each
-    unique evaluation of `group_by` since the last `reset()`. The value of each key is the `cumulative_count` for that `group`.
+    unique evaluation of `group_by` since the last `reset()`. The value of 
+    each key is the `cumulative_count` for that `group`.
 
     """
     version = VersionProperty("0.0.1")
