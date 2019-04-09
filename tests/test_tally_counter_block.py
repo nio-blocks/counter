@@ -7,7 +7,7 @@ from ..tally_counter_block import TallyCounter
 class TestCounter(NIOBlockTestCase):
 
     def test_tally(self):
-        """ Test that all groups are notified inside `tally` """
+        """ All groups are notified inside `tally` """
         blk = TallyCounter()
         self.configure_block(blk, {
             'group_by': '{{ $foo }}',
@@ -48,4 +48,30 @@ class TestCounter(NIOBlockTestCase):
                     'baz': 1,
                 },
             }),
+        ])
+
+    def test_reset(self):
+        """ Calling `reset` removes groups from `tally` """
+        blk = TallyCounter()
+        self.configure_block(blk, {
+            'group_by': '{{ $foo }}',
+        })
+        blk.start()
+
+        blk.process_signals([
+            Signal({'foo': 'bar'}),
+            Signal({'foo': 'baz'}),
+        ])
+        blk.reset()
+        blk.process_signals([
+            Signal({'foo': 'bar'}),
+        ])
+        self.assert_last_signal_list_notified([
+            Signal({
+                'count': 1,
+                'group': 'bar',
+                'tally': {
+                    'bar': 1,
+                },
+            })
         ])
