@@ -205,3 +205,16 @@ class TestCounter(NIOBlockTestCase):
         self.assertTrue(
             "_groups" in call_args_list[0][0].keys())
         self.assertEqual(blk._persistence.save.call_count, 1)
+
+    def test_clear_groups_on_reset(self):
+        """ Groups and Cumulative Count can optionally be cleared in reset."""
+        blk = Counter()
+        self.configure_block(blk, {
+            "clear_on_reset": True,
+        })
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.reset()
+        self.assertFalse(blk._groups)
+        self.assertFalse(blk._cumulative_count)
+        blk.stop()

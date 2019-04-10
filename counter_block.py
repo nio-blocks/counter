@@ -52,9 +52,13 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
                 be reset. Corresponds to INTERVAL mode.
 
     """
+    clear_on_reset = BoolProperty(
+        title="Clear Groups on Reset",
+        default=False,
+        advanced=True)
     reset_info = ObjectProperty(ResetInfo, title='Reset Info',
                                 default=ResetInfo())
-    version = VersionProperty("0.1.1")
+    version = VersionProperty("0.2.0")
 
     def __init__(self):
         super().__init__()
@@ -207,8 +211,12 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
             "cumulative_count": self._cumulative_count[key],
             "group": key
         })
-
-        # set the cumulative count, last reset, and write both to disk
-        self._cumulative_count[key] = 0
+        if self.clear_on_reset():
+            # remove from _groups, _cumulative_count
+            del self._cumulative_count[key]
+            self._groups.remove(key)
+        else:
+            # reset count
+            self._cumulative_count[key] = 0
         # finally, send the signal with the counts at reset time
         return [signal]

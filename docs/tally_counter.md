@@ -8,7 +8,7 @@ Properties
 
 Advanced Properties
 -------------------
-- **Backup Interval**: An interval of time that specifies how often persisted data is saved.
+- **Clear Groups on Reset**: If `True`, when reset `_groups` and `_cumulative_count` will be emptied.
 - **Exclude Existing**: If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.
 - **Group By**: The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.
 - **Load From Persistence**: If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.
@@ -19,7 +19,7 @@ Inputs
 
 Outputs
 -------
-- **default**: Signal including the count, cumulative count, and group.
+- **default**: Signal including the `count`, `group`, and `tally`.
 
 Output Signal Attributes
 ------------------------
@@ -30,4 +30,4 @@ Output Signal Attributes
 Commands
 --------
 - **groups**: Returns a list of the block’s current signal groupings.
-- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.
+- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. The group(s) reset are removed from `tally`

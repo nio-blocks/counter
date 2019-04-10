@@ -15,7 +15,9 @@ class TestCounter(NIOBlockTestCase):
         blk.start()
 
         blk.process_signals([
-            Signal({'foo': 'bar'}),
+            Signal({
+                'foo': 'bar',
+            }),
         ])
         self.assert_last_signal_list_notified([
             Signal({
@@ -28,10 +30,14 @@ class TestCounter(NIOBlockTestCase):
         ])
 
         blk.process_signals([
-            Signal({'foo': 'bar'}),
-            Signal({'foo': 'baz'}),
+            Signal({
+                'foo': 'bar',
+            }),
+            Signal({
+                'foo': 'baz',
+            }),
         ])
-        self.assert_last_signal_list_notified([
+        self.assert_signal_notified(
             Signal({
                 'count': 1,
                 'group': 'bar',
@@ -39,7 +45,8 @@ class TestCounter(NIOBlockTestCase):
                     'bar': 2,
                     'baz': 1,
                 },
-            }),
+            }))
+        self.assert_signal_notified(
             Signal({
                 'count': 1,
                 'group': 'baz',
@@ -47,5 +54,4 @@ class TestCounter(NIOBlockTestCase):
                     'bar': 2,
                     'baz': 1,
                 },
-            }),
-        ])
+            }))
