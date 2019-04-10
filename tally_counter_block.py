@@ -13,7 +13,7 @@ class TallyCounter(Counter):
     each key is the `cumulative_count` for that `group`.
 
     """
-    version = VersionProperty("0.0.1")
+    version = VersionProperty("0.1.0")
 
     def process_group(self, signals, key):
         """ Executed on each group of incoming signal objects.

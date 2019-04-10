@@ -83,8 +83,6 @@ class TestCounter(NIOBlockTestCase):
         block.reset()
         block.process_signals([Signal()])
         self.assertEqual(block._cumulative_count[None], 1)
-        block.reset()
-        self.assertFalse(block._cumulative_count)
         block.stop()
 
     def test_interval_reset(self):
@@ -102,7 +100,7 @@ class TestCounter(NIOBlockTestCase):
         block.start()
         block.process_signals([Signal(), Signal()])
         e.wait(2)
-        self.assertFalse(block._cumulative_count)
+        self.assertEqual(block._cumulative_count[None], 0)
         block.stop()
 
     def test_cron_sched(self):
@@ -128,7 +126,7 @@ class TestCounter(NIOBlockTestCase):
         block.process_signals([Signal()])
         self.assertEqual(block._cumulative_count[None], 1)
         e.wait(1.25)
-        self.assertFalse(block._cumulative_count)
+        self.assertEqual(block._cumulative_count[None], 0)
 
     def test_cron_missed_reset(self):
         now = datetime.utcnow()
@@ -177,7 +175,8 @@ class TestCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['bar'], 1)
         self.assertEqual(block._cumulative_count['baz'], 1)
         e.wait(2)
-        self.assertFalse(block._cumulative_count)
+        for k in block._cumulative_count:
+            self.assertEqual(block._cumulative_count[k], 0)
         block.stop()
 
     def test_persistence(self):
@@ -206,3 +205,16 @@ class TestCounter(NIOBlockTestCase):
         self.assertTrue(
             "_groups" in call_args_list[0][0].keys())
         self.assertEqual(blk._persistence.save.call_count, 1)
+
+    def test_clear_groups_on_reset(self):
+        """ Groups and Cumulative Count can optionally be cleared in reset."""
+        blk = Counter()
+        self.configure_block(blk, {
+            "clear_on_reset": True,
+        })
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.reset()
+        self.assertFalse(blk._groups)
+        self.assertFalse(blk._cumulative_count)
+        blk.stop()
