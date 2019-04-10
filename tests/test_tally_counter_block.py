@@ -37,7 +37,7 @@ class TestCounter(NIOBlockTestCase):
                 'foo': 'baz',
             }),
         ])
-        self.assert_last_signal_list_notified([
+        self.assert_signal_notified(
             Signal({
                 'count': 1,
                 'group': 'bar',
@@ -45,7 +45,8 @@ class TestCounter(NIOBlockTestCase):
                     'bar': 2,
                     'baz': 1,
                 },
-            }),
+            }))
+        self.assert_signal_notified(
             Signal({
                 'count': 1,
                 'group': 'baz',
@@ -53,5 +54,4 @@ class TestCounter(NIOBlockTestCase):
                     'bar': 2,
                     'baz': 1,
                 },
-            }),
-        ])
+            }))
