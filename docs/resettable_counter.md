@@ -33,4 +33,4 @@ Output Signal Attributes
 Commands
 --------
 - **groups**: Returns a list of the block’s current signal groupings.
-- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. The set of processed groups will be cleared.
+- **reset**: Notifies a signal with `count` equal to 0 and `cumulative_count` equal to the cumulative count. Cumulative count is then set to 0.

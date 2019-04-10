@@ -211,7 +211,5 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
         # remove the group from cumulative count and update _last_reset
         del self._cumulative_count[key]
         self._last_reset = datetime.utcnow()
-        # remove this group from _groups
-        self._groups.remove(key)
         # finally, send the signal with the counts at reset time
         return [signal]
