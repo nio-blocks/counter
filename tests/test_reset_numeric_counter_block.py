@@ -16,10 +16,11 @@ class TestResetCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count[None], 6)
         self.assert_num_signals_notified(3)
         block.process_signals([Signal()], input_id='reset')
-        block.process_signals([Signal({'count': 1})])
-        block.process_signals([Signal({'count': -1})])
-        self.assert_num_signals_notified(6)
         self.assertEqual(block._cumulative_count[None], 0)
+        block.process_signals([Signal({'count': 1})])
+        block.process_signals([Signal({'count': -4})])
+        self.assert_num_signals_notified(6)
+        self.assertEqual(block._cumulative_count[None], -3)
         block.stop()
 
     def test_reset_count_groups(self):
