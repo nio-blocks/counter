@@ -31,6 +31,14 @@
     "from_readme": "docs/resettable_counter.md",
     "from_python": "reset_counter_block.ResettableCounter"
   },
+  "nio/ResettableNumericCounter": {
+    "description": "The ResettableNumericCounter adds an additional input to the NumericCounter block that allows incoming signals to reset a group's cumulative count. All other behavior is the same as the NumericCounter block.",
+    "categories": [
+      "Signal Inspection"
+    ],
+    "from_readme": "docs/resettable_numeric_counter.md",
+    "from_python": "reset_numeric_counter_block.ResettableNumericCounter"
+  },
   "nio/TallyCounter": {
     "description": "The TallyCounter is useful for tasks such as score keeping. Incoming signals are enriched with the cumulative count for every group processed since the last reset.",
     "categories": [
