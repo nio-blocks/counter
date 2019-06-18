@@ -2,7 +2,7 @@ ResettableNumericCounter
 =======
 Basically the same thing as the `NumericCounter` block but with an additional input that allows you to reset a group's cumulative count with an incoming signal. The `NumericCounter` block includes a `reset` command that lets you reset all cumulative counts, but sometimes it is necessary to reset a count within a service.
 
-The Counter block counts the number of signals that pass through the block. It outputs the `count`, which is the length of each incoming list of signals processed by the block, and a `cumulative_count` which is the total number of signals (a sum of all the previous `count`s) that have been processed by the block since the last reset.
+The NumericCounter block adds incoming values to an internally-stored `count`. It outputs the `count`, which is the incoming value processed by the block, and a `cumulative_count` which is the total sum of values that have been processed by the block since the last reset.
 
 Properties
 ----------
