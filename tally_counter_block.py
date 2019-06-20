@@ -9,11 +9,11 @@ class TallyCounter(Counter):
     that are processed by it.
 
     Enriches incoming signals with `tally`, including a key for each
-    unique evaluation of `group_by` since the last `reset()`. The value of 
+    unique evaluation of `group_by` since the last `reset()`. The value of
     each key is the `cumulative_count` for that `group`.
 
     """
-    version = VersionProperty("0.1.0")
+    version = VersionProperty("0.2.0")
 
     def process_group(self, signals, key):
         """ Executed on each group of incoming signal objects.

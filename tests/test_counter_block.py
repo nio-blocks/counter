@@ -218,3 +218,15 @@ class TestCounter(NIOBlockTestCase):
         self.assertFalse(blk._groups)
         self.assertFalse(blk._cumulative_count)
         blk.stop()
+
+    def test_optional_emit_on_reset(self):
+        """ If disabled no signals are notified on reset."""
+        blk = Counter()
+        self.configure_block(blk, {
+            "emit_on_reset": False,
+        })
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.reset()
+        self.assert_num_signals_notified(1)
+        blk.stop()

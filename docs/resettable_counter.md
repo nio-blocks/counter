@@ -11,6 +11,7 @@ Properties
 Advanced Properties
 -------------------
 - **Clear Groups on Reset**: If `True`, when reset `_groups` and `_cumulative_count` will be emptied.
+- **Emit Signals on Reset**: If `True` (default), when reset a signal will be notified for each group with the `cumulative_count` since last reset, and a `count` value of 0.
 - **Exclude Existing**: If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.
 - **Group By**: The signal attribute on the incoming signal whose values will be used to define groups on the outgoing signal.
 - **Load From Persistence**: If `True`, the block’s state will be saved when the block is stopped, and reloaded once the block is restarted.

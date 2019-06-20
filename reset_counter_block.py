@@ -10,7 +10,7 @@ class ResettableCounter(Counter):
 
     """ The same as the counter block but with an input to reset a
     cumulative count """
-    version = VersionProperty("0.2.0")
+    version = VersionProperty("0.3.0")
 
     def process_signals(self, signals, input_id='count'):
         if input_id == 'reset':

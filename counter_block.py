@@ -56,9 +56,15 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
         title="Clear Groups on Reset",
         default=False,
         advanced=True)
-    reset_info = ObjectProperty(ResetInfo, title='Reset Info',
-                                default=ResetInfo())
-    version = VersionProperty("0.2.0")
+    emit_on_reset = BoolProperty(
+        title="Emit Signals on Reset",
+        default=True,
+        advanced=True)
+    reset_info = ObjectProperty(
+        ResetInfo,
+        title='Reset Info',
+        default=ResetInfo())
+    version = VersionProperty("0.3.0")
 
     def __init__(self):
         super().__init__()
@@ -198,7 +204,9 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
                 timedelta(hours=24),
                 True
             )
-        self.notify_signals(self.for_each_group(self.reset_group))
+        signals = self.for_each_group(self.reset_group)
+        if self.emit_on_reset():
+            self.notify_signals(signals)
         self._last_reset = datetime.utcnow()
 
     def reset_group(self, key):

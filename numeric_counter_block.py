@@ -6,7 +6,7 @@ from .counter_block import Counter
 
 class NumericCounter(Counter):
 
-    version = VersionProperty("0.2.0")
+    version = VersionProperty("0.3.0")
     count_expr = IntProperty(title='Count', default='{{$count}}')
     send_zeroes = BoolProperty(title='Send Zero Counts', default=True)
 
