@@ -40,3 +40,15 @@ class TestResetCounter(NIOBlockTestCase):
         # Only one reset signal even through there's two groups
         self.assert_num_signals_notified(4)
         block.stop()
+
+    def test_optional_emit_on_reset(self):
+        """ If disabled no signals are notified on reset."""
+        blk = ResettableCounter()
+        self.configure_block(blk, {
+            "emit_on_reset": False,
+        })
+        blk.start()
+        blk.process_signals([Signal()])
+        blk.process_signals([Signal()], input_id="reset")
+        self.assert_num_signals_notified(1)
+        blk.stop()

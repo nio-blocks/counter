@@ -14,8 +14,10 @@ class ResettableNumericCounter(NumericCounter):
 
     def process_signals(self, signals, input_id='count'):
         if input_id == 'reset':
-            self.notify_signals(self.for_each_group(
-                self.reset_group_from_signals, signals))
+            signals = self.for_each_group(
+                self.reset_group_from_signals, signals)
+            if self.emit_on_reset():
+                self.notify_signals(signals)
         else:
             super().process_signals(signals)
 
