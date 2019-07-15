@@ -53,3 +53,28 @@ class TestResetCounter(NIOBlockTestCase):
         blk.process_signals([Signal()], input_id="reset")
         self.assert_num_signals_notified(1)
         blk.stop()
+
+    def test_handle_keyerror(self):
+        """ Handle KeyError for unknown groups when resetting."""
+        blk = ResettableNumericCounter()
+        self.configure_block(blk, {
+            "group_by": "{{ $group }}",
+        })
+        blk.start()
+        blk.process_signals(
+            [
+                Signal({"count": 2, "group": "foo"}),
+                Signal({"count": 1, "group": "bar"}),
+            ])
+        self.assertEqual(blk._cumulative_count["foo"], 2)
+        self.assertEqual(blk._cumulative_count["bar"], 1)
+        blk.process_signals(
+            [
+                Signal({"group": "foo"}),
+                Signal({"group": "unknown"}),
+            ],
+            input_id="reset")
+        self.assertEqual(blk._cumulative_count["foo"], 0)
+        self.assertEqual(blk._cumulative_count["bar"], 1)
+        self.assertFalse("unknown" in blk._cumulative_count)
+        blk.stop()

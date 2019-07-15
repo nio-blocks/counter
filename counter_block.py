@@ -210,21 +210,29 @@ class Counter(EnrichSignals, Persistence, GroupBy, Block):
         self._last_reset = datetime.utcnow()
 
     def reset_group(self, key):
-        self.logger.debug(
-            "Resetting the Counter ({}:{})".format(
-                key, self._cumulative_count[key])
-        )
-        signal = Signal({
-            "count": 0,
-            "cumulative_count": self._cumulative_count[key],
-            "group": key
-        })
-        if self.clear_on_reset():
-            # remove from _groups, _cumulative_count
-            del self._cumulative_count[key]
-            self._groups.remove(key)
-        else:
-            # reset count
-            self._cumulative_count[key] = 0
+        try:
+            count = self._cumulative_count[key]
+            msg = "Resetting the Counter ({}:{})".format(key, count)
+            self.logger.debug(msg)
+            signal = Signal({
+                "count": 0,
+                "cumulative_count": count,
+                "group": key,
+            })
+            if self.clear_on_reset():
+                # remove from _groups, _cumulative_count
+                del self._cumulative_count[key]
+                self._groups.remove(key)
+            else:
+                # reset count
+                self._cumulative_count[key] = 0
+        except KeyError:
+            msg = "Resetting count for unknown group \"{}\"".format(key)
+            self.logger.warning(msg)
+            signal = Signal({
+                "count": 0,
+                "cumulative_count": 0,
+                "group": key,
+            })
         # finally, send the signal with the counts at reset time
         return [signal]
