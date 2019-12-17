@@ -18,10 +18,8 @@ class ResettableNumericCounter(NumericCounter):
                 signals = self.for_each_group(
                     self.reset_group_from_signals, signals)
             except AttributeError:
-                # group evaluation of reset signal failed,
-                # reset all groups
-                for group in self._cumulative_count:
-                    self.reset_group(group)
+                # group evaluation of reset signal failed
+                self.for_each_group(self.reset_group)
             if self.emit_on_reset():
                 self.notify_signals(signals)
         else:
