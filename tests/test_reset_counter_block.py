@@ -78,3 +78,23 @@ class TestResetCounter(NIOBlockTestCase):
         self.assertEqual(blk._cumulative_count["bar"], 1)
         self.assertFalse("unknown" in blk._cumulative_count)
         blk.stop()
+
+    def test_reset_all_groups(self):
+        blk = ResettableCounter()
+        self.configure_block(blk, {
+            "group_by": "{{ $group }}",
+        })
+        blk.start()
+        blk.process_signals(
+            [
+                Signal({"count": 2, "group": "foo"}),
+                Signal({"count": 1, "group": "bar"}),
+            ])
+        blk.process_signals(
+            [
+                Signal({"et": "cetera"}),
+            ],
+            input_id="reset")
+        self.assertEqual(blk._cumulative_count["foo"], 0)
+        self.assertEqual(blk._cumulative_count["bar"], 0)
+        blk.stop()

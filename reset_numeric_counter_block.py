@@ -10,12 +10,18 @@ class ResettableNumericCounter(NumericCounter):
 
     """ The same as the numeric counter block but with an input to reset a
     cumulative count """
-    version = VersionProperty("0.2.0")
+    version = VersionProperty("0.2.1")
 
     def process_signals(self, signals, input_id='count'):
         if input_id == 'reset':
-            signals = self.for_each_group(
-                self.reset_group_from_signals, signals)
+            try:
+                signals = self.for_each_group(
+                    self.reset_group_from_signals, signals)
+            except AttributeError:
+                # group evaluation of reset signal failed,
+                # reset all groups
+                for group in self._cumulative_count:
+                    self.reset_group(group)
             if self.emit_on_reset():
                 self.notify_signals(signals)
         else:

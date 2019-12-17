@@ -19,7 +19,7 @@ Advanced Properties
 Inputs
 ------
 - **count**: Any list of signals that should be counted
-- **reset**: Signals to trigger a reset of the cumulative count. The signals must have the necessary group information on them in order to reset the proper group.
+- **reset**: Signals to trigger a reset of the cumulative count. The signals must have the necessary group information on them in order to reset the proper group. If no group evaluation is made, all groups will be reset.
 
 Outputs
 -------
