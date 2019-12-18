@@ -17,11 +17,11 @@ class ResettableCounter(Counter):
             try:
                 signals = self.for_each_group(
                     self.reset_group_from_signals, signals)
-                if self.emit_on_reset():
-                    self.notify_signals(signals)
             except AttributeError:
                 # group evaluation of reset signal failed
                 self.for_each_group(self.reset_group)
+            if self.emit_on_reset():
+                self.notify_signals(signals)
         else:
             super().process_signals(signals)
 
