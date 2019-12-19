@@ -87,9 +87,12 @@ class TestResetCounter(NIOBlockTestCase):
         blk.start()
         blk.process_signals(
             [
-                Signal({"count": 2, "group": "foo"}),
-                Signal({"count": 1, "group": "bar"}),
+                Signal({"group": "foo"}),
+                Signal({"group": "foo"}),
+                Signal({"group": "bar"}),
             ])
+        self.assert_num_signals_notified(2)
+        # process signals where group_by evaluation will fail
         blk.process_signals(
             [
                 Signal({"et": "cetera"}),
@@ -97,4 +100,15 @@ class TestResetCounter(NIOBlockTestCase):
             input_id="reset")
         self.assertEqual(blk._cumulative_count["foo"], 0)
         self.assertEqual(blk._cumulative_count["bar"], 0)
+        self.assert_num_signals_notified(4)
+        self.assert_signal_notified(Signal({
+            "group": "foo",
+            "count": 0,
+            "cumulative_count": 2,
+        }))
+        self.assert_signal_notified(Signal({
+            "group": "bar",
+            "count": 0,
+            "cumulative_count": 1,
+        }))
         blk.stop()

@@ -90,11 +90,14 @@ class TestResetCounter(NIOBlockTestCase):
                 Signal({"count": 2, "group": "foo"}),
                 Signal({"count": 1, "group": "bar"}),
             ])
+        self.assert_num_signals_notified(2)
+        # process signals where group_by evaluation will fail
         blk.process_signals(
             [
                 Signal({"et": "cetera"}),
             ],
             input_id="reset")
+        self.assert_num_signals_notified(4)
         self.assertEqual(blk._cumulative_count["foo"], 0)
         self.assertEqual(blk._cumulative_count["bar"], 0)
         blk.stop()
