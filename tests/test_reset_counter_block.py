@@ -39,4 +39,6 @@ class TestResetCounter(NIOBlockTestCase):
         self.assertEqual(block._cumulative_count['B'], 1)
         # Only one reset signal even through there's two groups
         self.assert_num_signals_notified(4)
+        # an unknown group is reset
+        block.process_signals([Signal({'group_key': 'C'})], input_id='reset')
         block.stop()

@@ -25,4 +25,10 @@ class ResettableCounter(Counter):
         A method that takes signals as the first argument for use in
         the group by mixin's for_each_group method.
         """
-        return self.reset_group(key)
+        try:
+            return self.reset_group(key)
+        except KeyError:
+            # resetting a group that hasn't been counted yet,
+            # create it with a count of 0 and try again
+            self._cumulative_count[key] = 0
+            return self.reset_group(key)
